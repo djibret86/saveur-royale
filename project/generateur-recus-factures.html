@@ -974,12 +974,26 @@
     return base + ' Cercle ' + p.nom + ' — remise permanente de ' + p.remise + ' %.';
   }
 
+  // Note de la facture : la phrase « Plus que … » seule (le cumul figure déjà
+  // dans le champ « Niveau de fidélité »), comme sur le modèle validé.
+  function noteFidelite(btl) {
+    var p = palierActuel(btl), suivant = palierSuivant(btl);
+    if (suivant) {
+      var reste = suivant.seuil - btl;
+      return 'Plus que ' + reste + ' bouteille' + (reste > 1 ? 's' : '') +
+        ' pour rejoindre le cercle ' + suivant.nom +
+        ' et bénéficier de la remise permanente de ' + suivant.remise + ' % sur tous vos achats.';
+    }
+    return 'Cercle ' + p.nom + ' — remise permanente de ' + p.remise + ' % sur tous vos achats.';
+  }
+
   $('btnApplyTier').addEventListener('click', function () {
     var btl = Math.max(0, Math.round(Number(fBouteilles.value) || 0));
     var p = palierActuel(btl), an = anneeDoc();
     fFidNiveau.value = p.nom + ' — ' + btl + ' bouteille' + (btl > 1 ? 's' : '') +
       ' cumulée' + (btl > 1 ? 's' : '') + ' en ' + an;
     fFidelite.value = messageFidelite(btl);
+    fNote.value = noteFidelite(btl);
     fRemiseType.value = 'pct';
     fRemise.value = p.remise;
     render();
