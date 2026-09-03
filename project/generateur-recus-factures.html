@@ -1024,9 +1024,11 @@
       d.setAttribute('aria-label', 'Désignation ligne ' + (i + 1));
       d.addEventListener('input', function () {
         lines[i].designation = d.value;
-        // Prix officiel appliqué seulement si aucun prix n'a été saisi à la main.
+        // Prix officiel appliqué tant que le prix de CETTE ligne n'a pas été
+        // tapé à la main — un prix hérité de la ligne d'exemple ou d'un
+        // produit précédent sur la même ligne ne doit jamais rester "collé".
         var prix = prixProduit(d.value);
-        if (prix && !Number(lines[i].pu)) {
+        if (prix && !lines[i].puManual) {
           lines[i].pu = prix;
           p.value = prix;
           if (!Number(lines[i].qte)) { lines[i].qte = 1; q.value = 1; }
@@ -1042,7 +1044,13 @@
       var p = document.createElement('input');
       p.type = 'number'; p.min = '0'; p.step = '1'; p.value = l.pu;
       p.setAttribute('aria-label', 'Prix unitaire ligne ' + (i + 1));
-      p.addEventListener('input', function () { lines[i].pu = p.value; renderInvoice(); saveDraft(); });
+      p.addEventListener('input', function () {
+        lines[i].pu = p.value;
+        // Vider le champ redonne la main à l'auto-remplissage ; y taper un
+        // prix la retire (le prix saisi à la main ne doit jamais être écrasé).
+        lines[i].puManual = Number(p.value) > 0;
+        renderInvoice(); saveDraft();
+      });
 
       var del = document.createElement('button');
       del.type = 'button'; del.className = 'line-del'; del.textContent = '×';
