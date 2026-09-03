@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/saveur-royale-design-system-7d78d15a-5114-4f03-93f4-78cc87534d9b/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/saveur-royale-design-system-7d78d15a-5114-4f03-93f4-78cc87534d9b/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/saveur-royale-design-system-7d78d15a-5114-4f03-93f4-78cc87534d9b/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/saveur-royale-design-system-7d78d15a-5114-4f03-93f4-78cc87534d9b/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/saveur-royale-design-system-7d78d15a-5114-4f03-93f4-78cc87534d9b/tokens/effects.css">
+  <link rel="stylesheet" href="_ds/saveur-royale-design-system-7d78d15a-5114-4f03-93f4-78cc87534d9b/tokens/base.css">
+  <link rel="stylesheet" href="_ds/saveur-royale-design-system-7d78d15a-5114-4f03-93f4-78cc87534d9b/styles.css">
+  <script src="_ds/saveur-royale-design-system-7d78d15a-5114-4f03-93f4-78cc87534d9b/_ds_bundle.js"></script>
+  <script src="./doc-page.js"></script>
+  <style>
+    doc-page:not(:defined) { visibility: hidden; }
+    a { color: #C9A84C; text-decoration: none; }
+    a:hover { color: #a8873a; }
+  </style>
+</helmet>
+<doc-page size="a4">
+  <section class="page" data-screen-label="Reçu" style="background: #FFFFFF; padding: 12mm 15mm; box-sizing: border-box; display: flex; flex-direction: column; gap: 0; font-family: 'Mulish', system-ui, sans-serif; color: #1a1610;">
+
+    <div style="flex: 1 1 0; display: flex; flex-direction: column;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex: 1 1 auto; min-width: 0;">
+          <div style="height: 96px; overflow: hidden; display: flex; align-items: center; flex: none;"><img src="uploads/SAVEUR-ROYAL_Liqueur-Logo-sans-fond.png" alt="Maison Saveur Royale" style="width: 156px; height: 156px; object-fit: contain; margin: -31px 0 -29px; display: block;"></div>
+          <div>
+            <div style="font-family: 'Cinzel', Georgia, serif; font-weight: 600; font-size: 13px; letter-spacing: 0.1em; line-height: 1.2; color: #0a0908; text-transform: uppercase; white-space: nowrap;">Maison Saveur Royale</div>
+            <div style="font-family: 'Cinzel', Georgia, serif; font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #C9A84C; margin-top: 5px;">Le go&ucirc;t de l&rsquo;exception</div>
+          </div>
+        </div>
+        <div style="text-align: right; flex: none;">
+          <div style="font-family: 'Cinzel', Georgia, serif; font-weight: 600; font-size: 15px; letter-spacing: 0.28em; color: #0a0908;">RE&Ccedil;U</div>
+          <div style="margin-top: 9px; display: grid; grid-template-columns: auto 96px; gap: 6px 10px; font-size: 10px; align-items: end;">
+            <span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">N&deg;</span>
+            <span style="border-bottom: 1px solid #ded5c2; height: 14px;"></span>
+            <span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Date</span>
+            <span style="border-bottom: 1px solid #ded5c2; height: 14px;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: #C9A84C; margin: 12px 0 16px;"></div>
+
+      <div style="display: grid; gap: 14px; font-size: 10px;">
+        <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Re&ccedil;u de</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px;">
+          <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">La somme de (en lettres)</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+          <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Mode de paiement</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+        </div>
+        <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Motif / D&eacute;signation</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px;">
+          <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Facture rattach&eacute;e n&deg;</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+          <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Reste &agrave; payer</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 250px; gap: 24px; margin-top: 18px; align-items: start;">
+        <div>
+          <div style="display: flex; align-items: center; background: #1a1610; padding: 12px 14px; border-radius: 4px; justify-content: space-between;">
+            <span style="font-family: 'Cinzel', Georgia, serif; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #C9A84C;">Montant re&ccedil;u</span>
+            <span style="min-width: 130px; border-bottom: 1px solid #C9A84C; height: 16px;"></span>
+          </div>
+          <div style="font-size: 8.5px; letter-spacing: 0.06em; color: #a9a099; margin-top: 6px;">TVA non applicable &mdash; r&eacute;gime TEE &middot; Paiement &agrave; r&eacute;ception</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="height: 74px; border: 1px dashed #ded5c2; border-radius: 4px;"></div>
+          <div style="font-family: 'Cinzel', Georgia, serif; font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: #8a8178; margin-top: 5px;">Signature &amp; cachet</div>
+        </div>
+      </div>
+
+      <div style="flex: 1 1 auto;"></div>
+
+      <div style="padding-top: 10px; border-top: 1px solid #C9A84C;">
+        <div style="font-family: 'Cinzel', Georgia, serif; font-size: 10px; letter-spacing: 0.12em; color: #1a1610;">Maison Saveur Royale &middot; Abidjan, C&ocirc;te d&rsquo;Ivoire &middot; NCC&nbsp;: 2506300G</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px 24px; margin-top: 4px; font-size: 9px; color: #6f665c; line-height: 1.6;">
+          <div>WhatsApp&nbsp;: +225 0544 70 55 30</div>
+          <div>RCCM&nbsp;: CI-ABJ-03-2025-B12-05092</div>
+          <div>BP&nbsp;: 25 BP 823 Abidjan 25</div>
+          <div>www.saveurroyale.com</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px; margin: 8mm 0;">
+      <span style="flex: 1; border-top: 1px dashed #ded5c2;"></span>
+      <span style="font-family: 'Cinzel', Georgia, serif; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: #bdb3a6;">Souche &mdash; exemplaire maison</span>
+      <span style="flex: 1; border-top: 1px dashed #ded5c2;"></span>
+    </div>
+
+    <div style="flex: 1 1 0; display: flex; flex-direction: column;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex: 1 1 auto; min-width: 0;">
+          <div style="height: 96px; overflow: hidden; display: flex; align-items: center; flex: none;"><img src="uploads/SAVEUR-ROYAL_Liqueur-Logo-sans-fond.png" alt="Maison Saveur Royale" style="width: 156px; height: 156px; object-fit: contain; margin: -31px 0 -29px; display: block;"></div>
+          <div>
+            <div style="font-family: 'Cinzel', Georgia, serif; font-weight: 600; font-size: 13px; letter-spacing: 0.1em; line-height: 1.2; color: #0a0908; text-transform: uppercase; white-space: nowrap;">Maison Saveur Royale</div>
+            <div style="font-family: 'Cinzel', Georgia, serif; font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #C9A84C; margin-top: 5px;">Le go&ucirc;t de l&rsquo;exception</div>
+          </div>
+        </div>
+        <div style="text-align: right; flex: none;">
+          <div style="font-family: 'Cinzel', Georgia, serif; font-weight: 600; font-size: 15px; letter-spacing: 0.28em; color: #0a0908;">RE&Ccedil;U</div>
+          <div style="margin-top: 9px; display: grid; grid-template-columns: auto 96px; gap: 6px 10px; font-size: 10px; align-items: end;">
+            <span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">N&deg;</span>
+            <span style="border-bottom: 1px solid #ded5c2; height: 14px;"></span>
+            <span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Date</span>
+            <span style="border-bottom: 1px solid #ded5c2; height: 14px;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: #C9A84C; margin: 12px 0 16px;"></div>
+
+      <div style="display: grid; gap: 14px; font-size: 10px;">
+        <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Re&ccedil;u de</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px;">
+          <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">La somme de (en lettres)</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+          <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Mode de paiement</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+        </div>
+        <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Motif / D&eacute;signation</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px;">
+          <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Facture rattach&eacute;e n&deg;</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+          <div><span style="letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178;">Reste &agrave; payer</span><div style="border-bottom: 1px solid #ded5c2; height: 18px;"></div></div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 250px; gap: 24px; margin-top: 18px; align-items: start;">
+        <div>
+          <div style="display: flex; align-items: center; background: #1a1610; padding: 12px 14px; border-radius: 4px; justify-content: space-between;">
+            <span style="font-family: 'Cinzel', Georgia, serif; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #C9A84C;">Montant re&ccedil;u</span>
+            <span style="min-width: 130px; border-bottom: 1px solid #C9A84C; height: 16px;"></span>
+          </div>
+          <div style="font-size: 8.5px; letter-spacing: 0.06em; color: #a9a099; margin-top: 6px;">TVA non applicable &mdash; r&eacute;gime TEE &middot; Paiement &agrave; r&eacute;ception</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="height: 74px; border: 1px dashed #ded5c2; border-radius: 4px;"></div>
+          <div style="font-family: 'Cinzel', Georgia, serif; font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: #8a8178; margin-top: 5px;">Signature &amp; cachet</div>
+        </div>
+      </div>
+
+      <div style="flex: 1 1 auto;"></div>
+
+      <div style="padding-top: 10px; border-top: 1px solid #C9A84C;">
+        <div style="font-family: 'Cinzel', Georgia, serif; font-size: 10px; letter-spacing: 0.12em; color: #1a1610;">Maison Saveur Royale &middot; Abidjan, C&ocirc;te d&rsquo;Ivoire &middot; NCC&nbsp;: 2506300G</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px 24px; margin-top: 4px; font-size: 9px; color: #6f665c; line-height: 1.6;">
+          <div>WhatsApp&nbsp;: +225 0544 70 55 30</div>
+          <div>RCCM&nbsp;: CI-ABJ-03-2025-B12-05092</div>
+          <div>BP&nbsp;: 25 BP 823 Abidjan 25</div>
+          <div>www.saveurroyale.com</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</doc-page>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,44 @@
+/* ============================================================
+   Saveur Royale — Base element styling
+   Light defaults so any consuming page inherits the brand voice.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  color: var(--text-body);
+  background: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--text-strong);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  margin: 0 0 0.5em;
+  font-weight: var(--fw-bold);
+}
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+h4 { font-size: var(--fs-h4); }
+
+p { margin: 0 0 1em; text-wrap: pretty; }
+
+a { color: var(--text-gold); text-decoration: none; }
+a:hover { color: var(--gold-700); }
+
+::selection { background: var(--gold-200); color: var(--ink-900); }
+
+:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 2px;
+}
+
+img { max-width: 100%; display: block; }

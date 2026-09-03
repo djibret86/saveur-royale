@@ -1,0 +1,15 @@
+/* ============================================================
+   Saveur Royale — Webfonts
+   Sourced from the brand's own print/label artwork:
+   • Cinzel        — engraved Roman caps ("SAVEUR", eyebrows, technical)
+   • Mulish        — clean humanist sans (body, UI, descriptors)
+   • Pinyon Script — formal calligraphic script (signatures, flavour names)
+   • Great Vibes   — fallback flourish script
+
+   NOTE: the master logo wordmark "Royale" and the large flavour-name
+   script on the bottles are a *custom* lettering face. Pinyon Script is
+   the closest royalty-free match and is used as the system script.
+   Use assets/logo/royale-logo*.png whenever the actual wordmark is needed.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Mulish:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&family=Pinyon+Script&family=Great+Vibes&display=swap');

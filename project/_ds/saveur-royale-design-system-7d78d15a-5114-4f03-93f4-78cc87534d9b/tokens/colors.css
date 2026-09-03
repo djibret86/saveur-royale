@@ -1,0 +1,89 @@
+/* ============================================================
+   Saveur Royale — Colour system
+   Derived from the bottle labels & print artwork.
+   A regal palette: deep chocolate ink, antique gold, warm cream,
+   anchored by an Ivorian-tropical accent set.
+   ============================================================ */
+
+:root {
+  /* ---- Gold (the crown) ---------------------------------- */
+  --gold-50:  #fbf3df;
+  --gold-100: #f4e3b8;
+  --gold-200: #ecd194;
+  --gold-300: #e3c074;   /* gold-lite — filets, highlights */
+  --gold-400: #d4ab5b;
+  --gold-500: #c79a4e;   /* core gold — rules, accents */
+  --gold-600: #b8862f;   /* deep gold — pressed / borders */
+  --gold-700: #9a6e26;
+  --gold-800: #7a561d;
+  --gold-900: #5e4216;
+
+  /* ---- Cream / ivory (the paper) ------------------------- */
+  --cream-50:  #fffdf8;  /* lightest paper */
+  --cream-100: #faf5e8;  /* page background */
+  --cream-200: #f3e9d2;
+  --cream-300: #efe3c4;  /* cream — label text on dark */
+  --cream-400: #e3d3a6;  /* cream-soft — secondary on dark */
+  --cream-500: #d6c08a;
+
+  /* ---- Chocolate / espresso (the ink) ------------------- */
+  --choc-50:  #efe7e0;
+  --choc-100: #d9c8bc;
+  --choc-200: #a8856f;
+  --choc-300: #7a5740;
+  --choc-400: #5c3a22;   /* band brown — CRÈME pill */
+  --choc-500: #3d2415;
+  --choc-600: #2a1810;
+  --choc-700: #20100a;   /* deep chocolate — dark labels */
+  --choc-800: #160a06;
+  --choc-900: #0d0706;   /* near-black espresso */
+
+  /* ---- Ink (true neutral text) -------------------------- */
+  --ink-900: #161310;    /* primary black */
+  --ink-700: #2c2622;
+  --ink-500: #5a514a;
+  --ink-300: #8c8179;
+  --ink-100: #c8bfb6;
+
+  /* ---- Royal indigo (technical rings, %vol / cl) -------- */
+  --indigo-700: #2c2748;
+  --indigo-500: #3a335a;
+  --indigo-300: #5b5388;
+
+  /* ---- Ivorian / tropical accents (flag + fruit) -------- */
+  --ci-orange: #f47b20;  /* Côte d'Ivoire orange */
+  --ci-green:  #0a9d58;  /* Côte d'Ivoire green */
+  --tropic-mango:  #f2a93b;
+  --tropic-passion:#e8911f;
+  --bissap-red:    #9e1b32;  /* hibiscus / crème de bissap */
+  --tropic-leaf:   #4f7a2e;
+
+  /* ---- Semantic surfaces -------------------------------- */
+  --surface-page:     var(--cream-100);
+  --surface-card:     var(--cream-50);
+  --surface-raised:   #ffffff;
+  --surface-ink:      var(--choc-700);   /* dark hero / premium */
+  --surface-ink-deep: var(--choc-900);
+  --surface-band:     var(--choc-400);
+
+  /* ---- Semantic text ------------------------------------ */
+  --text-strong:   var(--ink-900);
+  --text-body:     var(--ink-700);
+  --text-muted:    var(--ink-500);
+  --text-faint:    var(--ink-300);
+  --text-on-dark:        var(--cream-300);
+  --text-on-dark-muted:  var(--cream-400);
+  --text-gold:     var(--gold-600);
+
+  /* ---- Semantic lines / borders ------------------------- */
+  --line-soft:   rgba(22,19,16,0.10);
+  --line-strong: rgba(22,19,16,0.20);
+  --line-gold:   var(--gold-500);
+  --line-on-dark:rgba(239,227,196,0.22);
+
+  /* ---- Brand spotlight ---------------------------------- */
+  --brand-gold:  var(--gold-500);
+  --brand-ink:   var(--ink-900);
+  --brand-cream: var(--cream-300);
+  --focus-ring:  rgba(199,154,78,0.55);
+}
