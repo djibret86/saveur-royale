@@ -104,19 +104,70 @@ Pas de tarif dégressif. **« Crème de Chocolat » = la saveur « Chocolat »**
 automatiquement. Ne pas confondre Crème de Cocota (8 000) et Crème de Bissap
 (7 000).
 
+## Fichier de gestion (source des chiffres clients)
+
+Djibret travaille sur un classeur Excel (nom vu jusqu'ici : `GESTION_COMMERCIALE`,
+en version V11 ou V12_corrige selon l'upload) **mis à jour sur plusieurs
+terminaux** — je ne le vois que quand il est explicitement partagé dans la
+session, jamais en direct. Chaque upload est donc un instantané, pas un lien
+permanent : redemander le fichier (ou la ligne qui m'intéresse) au besoin.
+
+**Feuilles utiles pour la facturation :**
+- `PARAMÈTRES` §1 : grille tarifaire officielle (prix détail / semi-gros dès 6 /
+  gros dès 12). **Au dernier import, les trois prix sont identiques pour chaque
+  produit** — donc pas de vraie dégressivité au volume aujourd'hui, malgré les
+  colonnes prévues pour ça. Si Djibret dit avoir changé un seuil ou un prix
+  semi-gros/gros, aller relire cette section plutôt que de supposer que rien n'a
+  changé.
+- `PARAMÈTRES` §5 : délais de paiement et **plafond de remise par type de
+  client** — distinct de la remise fidélité, à ne pas confondre :
+
+  | Type de client | Délai habituel | Remise max |
+  |---|---|---|
+  | Ambulant / passant | Immédiat (cash) | 0 % |
+  | Client régulier fidèle | Immédiat (cash/mobile) | 10 % |
+  | Semi-grossiste | Immédiat à 48h | 10–15 % |
+  | Grossiste (ex. Vei, Barell) | 24h à 72h | 15–20 % |
+  | Ventes privées / événements | Acompte + solde J+7 | 10 % |
+  | Institutions / entreprises | 30 jours | 10 % |
+
+  Un client peut être facturé tantôt en « Client régulier », tantôt en
+  « Grossiste » selon la commande (vu dans `VENTES 2026` pour Col Vei Sylvain :
+  deux canaux différents sur deux lignes) — vérifier le canal de la commande en
+  cours plutôt que de supposer un statut fixe par client.
+- `🎴 FIDÉLITÉ CLIENT` : total de bouteilles par client, recalculé
+  **automatiquement par somme sur le nom exact** dans `VENTES 2026` — donc
+  **fragile aux variantes d'orthographe**. Vu dans ce fichier : "COL VEI
+  SYLVAIN" (54 + 12 btl) et "COLONEL VEI" (6 btl) sont la même personne pour
+  Djibret, mais seule la première variante est comptée par la feuille
+  (66 au lieu de 72 réels) — palier inchangé ici (Diamant dans les deux cas),
+  mais un cas moins favorable pourrait faire louper un palier. **Avant de
+  prendre un chiffre de cette feuille pour une remise, vérifier qu'aucune
+  variante du nom n'existe ailleurs dans `VENTES 2026`.**
+- `FICHES CLIENTS` peut contenir un statut (actif/inactif, exclusion) qui
+  contredit des ventes récentes vues dans `VENTES 2026` — dans ce cas, ne pas
+  trancher seul : signaler la contradiction à Djibret plutôt que de choisir une
+  des deux sources.
+
 ## Manière de travailler avec Djibret
 
 - Ne code pas : **explications simples et concises**, pas de jargon.
 - **Ne jamais improviser un total ni une remise** : le nombre de bouteilles
-  cumulées vient du fichier `GESTION_COMMERCIALE_V12_corrige.xlsx`
-  (feuille `🎴 FIDÉLITÉ CLIENT`), pas d'une estimation. L'outil calcule le palier
-  à partir du chiffre saisi — c'est à Djibret de fournir le bon chiffre.
+  cumulées vient du fichier de gestion (feuille `🎴 FIDÉLITÉ CLIENT`, en
+  vérifiant les variantes de nom — voir section ci-dessus), pas d'une
+  estimation. L'outil calcule le palier à partir du chiffre saisi — c'est à
+  Djibret de fournir le bon chiffre.
 - **Corrections chirurgicales** plutôt que refontes quand un système marche.
 - Décisions tarifaires/structurelles : **confirmer avant d'appliquer**.
 - **WhatsApp d'abord** : privilégier ce qui s'envoie facilement en image.
-- Toujours la **date réelle du jour**, jamais une date arbitraire.
+- Toujours la **date réelle du jour**, jamais une date arbitraire — pour une
+  facture liée à une vente déjà enregistrée, préférer la date de la vente dans
+  `VENTES 2026` si elle est connue, plutôt que la date du jour de rédaction.
 - Libellés clients : ne jamais fusionner deux orthographes proches sans
-  confirmation (voir les fusions déjà tranchées dans le dossier de passation).
+  confirmation (voir les fusions déjà tranchées dans le dossier de passation) —
+  et ne pas supposer qu'une fusion mentionnée comme "déjà faite" dans le dossier
+  de passation est reflétée dans un classeur donné : elle peut ne pas y être
+  (constaté sur COLONEL VEI / COL VEI SYLVAIN dans un upload).
 
 ## Contexte
 Les `.dc.html` de `project/` sont les maquettes d'origine (export Claude Design,
