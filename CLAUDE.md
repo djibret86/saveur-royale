@@ -138,16 +138,19 @@ permanent : redemander le fichier (ou la ligne qui m'intéresse) au besoin.
 - `🎴 FIDÉLITÉ CLIENT` : total de bouteilles par client, recalculé
   **automatiquement par somme sur le nom exact** dans `VENTES 2026` — donc
   **fragile aux variantes d'orthographe**. Vu dans ce fichier : "COL VEI
-  SYLVAIN" (54 + 12 btl) et "COLONEL VEI" (6 btl) sont la même personne pour
-  Djibret, mais seule la première variante est comptée par la feuille
-  (66 au lieu de 72 réels) — palier inchangé ici (Diamant dans les deux cas),
-  mais un cas moins favorable pourrait faire louper un palier. **Avant de
+  SYLVAIN" (54 + 12 btl) et "COLONEL VEI" (6 btl) — **confirmé par Djibret :
+  même personne** — mais seule la première variante est comptée par la feuille
+  (66 au lieu de 72 réels). Palier inchangé dans ce cas (Diamant dans les deux
+  cas), mais un cas moins favorable pourrait faire louper un palier. **Avant de
   prendre un chiffre de cette feuille pour une remise, vérifier qu'aucune
   variante du nom n'existe ailleurs dans `VENTES 2026`.**
 - `FICHES CLIENTS` peut contenir un statut (actif/inactif, exclusion) qui
   contredit des ventes récentes vues dans `VENTES 2026` — dans ce cas, ne pas
   trancher seul : signaler la contradiction à Djibret plutôt que de choisir une
-  des deux sources.
+  des deux sources. **Cas déjà tranché :** Col Vei Sylvain est noté
+  « inactif — voyage » dans `FICHES CLIENTS` mais continue d'acheter via un
+  intermédiaire pendant son voyage — les ventes sous son nom dans `VENTES 2026`
+  sont réelles, ce statut ne les invalide pas.
 
 ## Manière de travailler avec Djibret
 
