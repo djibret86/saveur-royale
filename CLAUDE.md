@@ -152,6 +152,14 @@ permanent : redemander le fichier (ou la ligne qui m'intéresse) au besoin.
   intermédiaire pendant son voyage — les ventes sous son nom dans `VENTES 2026`
   sont réelles, ce statut ne les invalide pas.
 
+**Fusions de noms confirmées par Djibret** (à cumuler sous le nom unique donné,
+tant qu'aucun classeur mis à jour ne les a déjà mergées) :
+- COLONEL VEI = COL VEI SYLVAIN → **Col Vei Sylvain**
+- MME ADREILLE BONI KONG (alias **« Boniking »** sur WhatsApp) = MIREILLE BONI
+  → **Mireille Boni**. Vu dans `VENTES 2026` : 11 btl sous « Mireille Boni »
+  (4 commandes) + 2 btl sous « Mme Adreille Boni Kong » (1 commande) = 13 btl
+  réelles avant toute nouvelle commande.
+
 ## Manière de travailler avec Djibret
 
 - Ne code pas : **explications simples et concises**, pas de jargon.
