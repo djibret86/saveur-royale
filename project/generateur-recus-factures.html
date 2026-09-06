@@ -362,6 +362,14 @@
   .receipt .r-eyebrow { font-family: 'Cinzel', Georgia, serif; font-size: 18px; letter-spacing: 0.18em; text-transform: uppercase; color: #8a8178; }
   .receipt .r-value { font-size: 26px; margin-top: 8px; color: #1a1610; }
   .receipt .r-value--lg { font-size: 32px; }
+  .receipt .r-name-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .receipt .r-tier-badge {
+    display: inline-flex; align-items: center;
+    padding: 5px 14px;
+    border: 1px solid #C9A84C; border-radius: 999px;
+    font-family: 'Cinzel', Georgia, serif; font-size: 14px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase; color: #C9A84C;
+  }
   .receipt .r-fields-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
   .receipt .r-amount-box { display: flex; align-items: center; justify-content: space-between; background: #1a1610; padding: 30px 34px; border-radius: 8px; margin-top: 46px; }
   .receipt .r-amount-label { font-family: 'Cinzel', Georgia, serif; font-size: 22px; letter-spacing: 0.16em; text-transform: uppercase; color: #C9A84C; }
@@ -633,7 +641,9 @@
           <div class="r-fields">
             <div>
               <div class="r-eyebrow">Reçu de</div>
-              <div class="r-value r-value--lg" id="outClient">Fifi</div>
+              <div class="r-value r-value--lg r-name-row">
+                <span id="outClient">Fifi</span><span class="r-tier-badge" id="outClientBadge" hidden></span>
+              </div>
             </div>
             <div>
               <div class="r-eyebrow">La somme de</div>
@@ -662,7 +672,7 @@
           <div class="r-status-line" id="outStatus">TVA non applicable — régime TEE · Payé en intégralité</div>
 
           <div class="r-loyalty" id="outLoyaltyBox">
-            <div class="r-loyalty-title">Fidélité</div>
+            <div class="r-loyalty-title" id="outLoyaltyTitle">Fidélité</div>
             <div class="r-loyalty-text" id="outLoyaltyText">6 bouteilles cumulées en 2026. Plus que 6 bouteilles pour rejoindre le cercle Or et bénéficier de la remise permanente de 5 %.</div>
           </div>
 
@@ -1156,6 +1166,20 @@
     var showLoyalty = fFideliteOn.checked && fFidelite.value.trim().length > 0;
     $('outLoyaltyBox').hidden = !showLoyalty;
     $('outLoyaltyText').textContent = fFidelite.value || '';
+
+    // Badge de palier à côté du nom, et titre de l'encart fidélité assorti —
+    // seulement à partir du cercle Or (pas de badge pour "En progression").
+    var btl = Math.max(0, Math.round(Number(fBouteilles.value) || 0));
+    var palier = palierActuel(btl);
+    var badge = $('outClientBadge');
+    if (palier.remise > 0) {
+      badge.textContent = 'Cercle ' + palier.nom;
+      badge.hidden = false;
+      $('outLoyaltyTitle').textContent = 'Fidélité · Cercle ' + palier.nom;
+    } else {
+      badge.hidden = true;
+      $('outLoyaltyTitle').textContent = 'Fidélité';
+    }
 
     rescale();
   }
