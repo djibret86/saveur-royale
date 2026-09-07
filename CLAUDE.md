@@ -51,7 +51,7 @@ Référence : `project/Reçu Fifi WhatsApp.dc.html`. Largeur fixe **1080 px**,
 hauteur **libre** (elle suit le contenu — ne jamais la figer, sinon la dernière
 ligne du pied de page est coupée). Blocs : en-tête logo + nom + slogan, filet
 doré, « REÇU » + N° + date, puis Reçu de / La somme de (montant en lettres) /
-Motif / Mode de paiement / Reste à payer, bloc noir « Montant reçu » en or,
+Saveur(s) / Mode de paiement / Reste à payer, bloc noir « Montant reçu » en or,
 mention TVA + statut de paiement, encart fidélité doré, pied de page.
 N° au format `SR-REC-<année>-<seq>`. Date en toutes lettres (03 septembre 2026).
 
