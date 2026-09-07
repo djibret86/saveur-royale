@@ -560,7 +560,7 @@
       <fieldset>
         <legend>Lignes facturées</legend>
         <div class="lines-head">
-          <span>Saveur(s)</span><span>Qté</span><span>Prix unit.</span><span></span>
+          <span>Désignation</span><span>Qté</span><span>Prix unit.</span><span></span>
         </div>
         <div id="linesList"></div>
         <datalist id="produits">
@@ -729,7 +729,7 @@
           <table class="inv-table">
             <thead>
               <tr>
-                <th class="inv-th-desig">Saveur(s)</th>
+                <th class="inv-th-desig">Désignation</th>
                 <th class="inv-th-qte">Quantité</th>
                 <th class="inv-th-pu">Prix unitaire</th>
                 <th class="inv-th-mt">Montant</th>
@@ -1029,9 +1029,9 @@
       row.className = 'line-row';
 
       var d = document.createElement('input');
-      d.type = 'text'; d.value = l.designation; d.placeholder = 'Saveur(s)';
+      d.type = 'text'; d.value = l.designation; d.placeholder = 'Désignation';
       d.setAttribute('list', 'produits');
-      d.setAttribute('aria-label', 'Saveur(s) ligne ' + (i + 1));
+      d.setAttribute('aria-label', 'Désignation ligne ' + (i + 1));
       d.addEventListener('input', function () {
         lines[i].designation = d.value;
         // Prix officiel appliqué tant que le prix de CETTE ligne n'a pas été
