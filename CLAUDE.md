@@ -38,6 +38,20 @@ s'appliquent dans les deux cas.
   automatiquement la mention « Conditions » en pied de page. Affiche aussi le
   plafond de remise de ce type de client à titre indicatif — jamais appliqué
   automatiquement, la remise reste une décision de Djibret.
+- **Alerte de nom proche** : quand le nom du client change, l'outil compare
+  ses mots significatifs (titres comme Col/Colonel/Mme retirés) à ceux des
+  clients déjà dans l'historique. Si un autre code client partage un mot avec
+  le nom saisi, un bandeau rouge discret prévient avant de continuer — pensé
+  pour les cas déjà vécus (Colonel Vei / Col Vei Sylvain, Mireille Boni / Mme
+  Adreille Boni Kong). Une alerte n'empêche rien, elle demande juste de
+  vérifier.
+- **Suivi des impayés** : le reçu garde son champ Reste à payer ; la facture a
+  maintenant un statut Payé / En attente (n'apparaît pas sur le document,
+  sert seulement à l'historique). Un document avec un reste dû s'affiche en
+  rouge dans l'historique, et la case « Impayés seulement » filtre la liste
+  à ceux-là.
+- **Recherche dans l'historique** : une barre de recherche filtre par nom de
+  client parmi les 50 documents les plus récents.
 
 ## Constantes de marque (ne jamais improviser)
 

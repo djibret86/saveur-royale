@@ -182,6 +182,16 @@
   .icon-btn:hover { background: var(--gold-soft); color: var(--ink-deep); }
   .icon-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
+  .dup-warning {
+    margin: -6px 0 14px;
+    font-size: 12.5px; font-weight: 700; color: var(--danger);
+    background: rgba(158, 59, 47, 0.08);
+    border: 1px solid rgba(158, 59, 47, 0.3);
+    border-radius: 7px;
+    padding: 8px 11px;
+    line-height: 1.45;
+  }
+
   .tier-readout {
     margin-top: 8px;
     font-size: 12.5px;
@@ -343,11 +353,22 @@
     font-family: var(--font-display); font-size: 15px; font-weight: 600;
     letter-spacing: 0.06em; color: var(--ink-deep); margin: 0;
   }
+  .history-controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+    margin-bottom: 14px;
+  }
+  .history-controls input[type="text"] { flex: 1; min-width: 180px; }
+  .history-filter {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap;
+  }
+  .history-filter input { width: auto; }
+
   .history-row {
     display: grid;
     grid-template-columns: 92px 1fr 1fr auto;
     gap: 12px;
-    align-items: baseline;
+    align-items: start;
     padding: 10px 0;
     border-top: 1px solid var(--line);
     font-size: 13px;
@@ -357,11 +378,13 @@
   .history-numero { font-weight: 700; color: var(--ink); }
   .history-client { color: var(--muted); }
   .history-montant { font-variant-numeric: tabular-nums; text-align: right; color: var(--ink); }
+  .history-reste { display: block; font-size: 11px; font-weight: 700; color: var(--danger); margin-top: 2px; }
   .history-type {
     display: inline-block; font-family: var(--font-display); font-size: 10px;
     letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-deep);
     margin-right: 8px;
   }
+  .history-empty-filtered { font-size: 13px; color: var(--muted-soft); padding: 10px 0; }
 
   /* ============================================================
      THE RECEIPT — exact replica of the validated WhatsApp model
@@ -522,6 +545,7 @@
           <span class="sub">Utilisé pour numéroter (ex. VEI, BONI) — modifiable.</span>
         </div>
       </div>
+      <p class="dup-warning" id="dupWarning" hidden></p>
       <div class="field">
         <label for="fBouteilles">Bouteilles cumulées en <span id="tierYear">2026</span></label>
         <div class="field-with-action">
@@ -609,6 +633,14 @@
           </select>
           <div class="tier-readout" id="typeClientReadout"></div>
           <span class="sub">Fixe les conditions de paiement affichées en pied de page. Le plafond de remise est indicatif — la remise reste à ta décision.</span>
+        </div>
+        <div class="field">
+          <label for="fPaiementStatut">Statut de paiement</label>
+          <select id="fPaiementStatut">
+            <option value="attente">En attente</option>
+            <option value="paye">Payé</option>
+          </select>
+          <span class="sub">Sert à repérer les impayés dans l'historique — n'apparaît pas sur le document.</span>
         </div>
       </fieldset>
 
@@ -860,6 +892,13 @@
       <h2>Historique</h2>
       <button type="button" class="btn-ghost" id="btnCloseHistory">Fermer</button>
     </div>
+    <div class="history-controls">
+      <input type="text" id="historySearch" placeholder="Rechercher un client…">
+      <label class="history-filter">
+        <input type="checkbox" id="historyUnpaidOnly">
+        Impayés seulement
+      </label>
+    </div>
     <p class="sub" id="historyEmpty">Aucun document enregistré pour l'instant.</p>
     <div id="historyList"></div>
   </section>
@@ -1008,7 +1047,7 @@
     fMode = $('fMode'), fModeAutre = $('fModeAutre'), fModeAutreWrap = $('fModeAutreWrap'), fReste = $('fReste'),
     fFideliteOn = $('fFideliteOn'), fFidelite = $('fFidelite'), fBouteilles = $('fBouteilles'),
     fRemise = $('fRemise'), fRemiseType = $('fRemiseType'), fNote = $('fNote'), fBanque = $('fBanque'),
-    fTypeClient = $('fTypeClient');
+    fTypeClient = $('fTypeClient'), fPaiementStatut = $('fPaiementStatut');
 
   var receiptEl = $('receipt'), invoiceEl = $('invoice'),
     previewFrame = $('previewFrame'), previewScaler = $('previewScaler');
@@ -1020,13 +1059,27 @@
   var lines = [{ designation: 'Passion', qte: 1, pu: 7000 }];
 
   // ---- Code client : suggéré depuis le nom (titre ignoré), toujours modifiable ----
-  var TITRES_CLIENT = ['col', 'mme', 'mr', 'm', 'dr', 'pr', 'mlle', 'cdt'];
-  function suggestClientCode(name) {
+  var TITRES_CLIENT = [
+    'col', 'colonel', 'mme', 'madame', 'mr', 'monsieur', 'm', 'dr', 'docteur',
+    'pr', 'professeur', 'mlle', 'mademoiselle', 'cdt', 'commandant'
+  ];
+  function asciiUpper(w) {
+    var a = (w || '').normalize ? w.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : w;
+    return a.replace(/[^A-Za-z]/g, '').toUpperCase();
+  }
+  // Mots significatifs d'un nom, titres retirés — base commune au code client
+  // suggéré et à l'alerte de nom proche (même personne, orthographes différentes).
+  function significantWords(name) {
     var words = String(name || '').trim().split(/\s+/).filter(Boolean);
-    words = words.filter(function (w) { return TITRES_CLIENT.indexOf(w.toLowerCase().replace(/\.$/, '')) === -1; });
-    var pick = words[0] || String(name || '').trim();
-    var ascii = pick.normalize ? pick.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : pick;
-    return ascii.replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 4);
+    return words
+      .filter(function (w) { return TITRES_CLIENT.indexOf(w.toLowerCase().replace(/\.$/, '')) === -1; })
+      .map(asciiUpper)
+      .filter(function (w) { return w.length >= 3; });
+  }
+  function suggestClientCode(name) {
+    var words = significantWords(name);
+    var pick = words[0] || asciiUpper(String(name || '').trim());
+    return pick.slice(0, 4);
   }
   fClient.addEventListener('input', function () {
     if (!clientCodeManual) fClientCode.value = suggestClientCode(fClient.value);
@@ -1346,6 +1399,7 @@
     fClientCode.value = '';
     clientCodeManual = false;
     fTypeClient.value = 'regulier';
+    fPaiementStatut.value = 'attente';
     fFidNiveau.value = '';
     fMotif.value = '';
     fMontant.value = '';
@@ -1381,6 +1435,7 @@
       localStorage.setItem(DRAFT_KEY, JSON.stringify({
         docType: docType, numero: fNumero.value, date: fDate.value, client: fClient.value,
         clientCode: fClientCode.value, clientCodeManual: clientCodeManual, typeClient: fTypeClient.value,
+        paiementStatut: fPaiementStatut.value,
         fidNiveau: fFidNiveau.value, motif: fMotif.value, montant: fMontant.value,
         lettres: fLettres.value, lettresManual: lettresManual, mode: fMode.value,
         modeAutre: fModeAutre.value, reste: fReste.value, fideliteOn: fFideliteOn.checked,
@@ -1400,6 +1455,7 @@
       fClientCode.value = d.clientCode || suggestClientCode(d.client || '');
       clientCodeManual = !!d.clientCodeManual;
       fTypeClient.value = d.typeClient || 'regulier';
+      fPaiementStatut.value = d.paiementStatut || 'attente';
       fFidNiveau.value = d.fidNiveau || '';
       fMotif.value = d.motif || '';
       fMontant.value = d.montant || '';
@@ -1467,7 +1523,9 @@
   var dbApi = null;
   var btnSuggestNumero = $('btnSuggestNumero'), historyToggleRow = $('historyToggleRow'),
     btnOpenHistory = $('btnOpenHistory'), btnCloseHistory = $('btnCloseHistory'),
-    historyPanel = $('historyPanel'), historyList = $('historyList'), historyEmpty = $('historyEmpty');
+    historyPanel = $('historyPanel'), historyList = $('historyList'), historyEmpty = $('historyEmpty'),
+    historySearch = $('historySearch'), historyUnpaidOnly = $('historyUnpaidOnly'),
+    dupWarning = $('dupWarning');
 
   if (window.claude && typeof window.claude.use === 'function') {
     try {
@@ -1508,7 +1566,7 @@
   // Un enregistrement par document réellement généré — l'id reprend le numéro
   // pour qu'une régénération du même document mette à jour sa ligne plutôt que
   // d'en créer une seconde.
-  function recordDocument(montantNet) {
+  function recordDocument(montantNet, reste) {
     if (!dbApi) return;
     var an = anneeDoc();
     var code = (fClientCode.value || suggestClientCode(fClient.value) || 'CLI').toUpperCase();
@@ -1518,7 +1576,8 @@
     dbApi.collection('documents').doc(id).set({
       type: docTypeKey(), numero: fNumero.value || '', client: fClient.value || '',
       clientCode: code, year: Number(an), date: fDate.value || '',
-      montantNet: Math.round(Number(montantNet) || 0), createdAt: new Date().toISOString()
+      montantNet: Math.round(Number(montantNet) || 0), reste: Math.round(Number(reste) || 0),
+      createdAt: new Date().toISOString()
     }).catch(function () { /* l'historique reste local à défaut — le document est déjà généré */ });
   }
 
@@ -1526,30 +1585,87 @@
     var row = document.createElement('div');
     row.className = 'history-row';
     var dateStr = doc.date ? formatDateCourt(doc.date) : '';
+    var montantHtml = doc.montantNet ? (formatFCFA(doc.montantNet) + ' F') : '';
+    if (doc.reste > 0) montantHtml += '<span class="history-reste">Reste dû : ' + formatFCFA(doc.reste) + ' F</span>';
     row.innerHTML =
       '<span class="history-date"></span>' +
       '<span><span class="history-type"></span><span class="history-numero"></span></span>' +
       '<span class="history-client"></span>' +
-      '<span class="history-montant"></span>';
+      '<span class="history-montant">' + montantHtml + '</span>';
     row.children[0].textContent = dateStr;
     row.querySelector('.history-type').textContent = doc.type === 'facture' ? 'Facture' : 'Reçu';
     row.querySelector('.history-numero').textContent = doc.numero || '';
     row.children[2].textContent = doc.client || '';
-    row.children[3].textContent = doc.montantNet ? formatFCFA(doc.montantNet) + ' F' : '';
     return row;
+  }
+
+  // Le dernier instantané reçu, gardé en mémoire pour filtrer (recherche,
+  // impayés) côté page sans relancer de requête à chaque frappe.
+  var lastHistorySnapshot = [];
+  function renderHistoryList() {
+    var q = (historySearch.value || '').trim().toLowerCase();
+    var unpaidOnly = historyUnpaidOnly.checked;
+    var filtered = lastHistorySnapshot.filter(function (doc) {
+      if (unpaidOnly && !(doc.reste > 0)) return false;
+      if (q && (doc.client || '').toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+    historyList.textContent = '';
+    if (filtered.length === 0 && lastHistorySnapshot.length > 0) {
+      var msg = document.createElement('p');
+      msg.className = 'history-empty-filtered';
+      msg.textContent = 'Aucun document ne correspond à ce filtre.';
+      historyList.appendChild(msg);
+    } else {
+      filtered.forEach(function (doc) { historyList.appendChild(renderHistoryRow(doc)); });
+    }
+    historyEmpty.hidden = lastHistorySnapshot.length > 0;
   }
 
   function subscribeHistory() {
     if (!dbApi) return;
     dbApi.collection('documents').orderBy('createdAt', 'desc').limit(50).onSnapshot(function (snap) {
-      historyList.textContent = '';
-      snap.docs.forEach(function (d) { historyList.appendChild(renderHistoryRow(d.data())); });
-      historyEmpty.hidden = snap.docs.length > 0;
+      lastHistorySnapshot = snap.docs.map(function (d) { return d.data(); });
+      renderHistoryList();
     }, function () { /* affichage local uniquement en cas d'erreur */ });
   }
 
+  historySearch.addEventListener('input', renderHistoryList);
+  historyUnpaidOnly.addEventListener('change', renderHistoryList);
+
   btnOpenHistory.addEventListener('click', function () { historyPanel.hidden = false; historyPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
   btnCloseHistory.addEventListener('click', function () { historyPanel.hidden = true; });
+
+  // ---- Alerte de nom proche : même personne enregistrée sous un nom différent ----
+  // (vécu avec "Colonel Vei" / "Col Vei Sylvain" et "Mireille Boni" / "Mme Adreille Boni Kong")
+  function checkDuplicateClient() {
+    if (!dbApi) { dupWarning.hidden = true; return; }
+    var name = fClient.value.trim();
+    var code = (fClientCode.value || '').toUpperCase();
+    var words = significantWords(name);
+    if (!name || words.length === 0) { dupWarning.hidden = true; return; }
+    dbApi.collection('documents').limit(500).get().then(function (snap) {
+      var seen = {};
+      var match = null;
+      snap.docs.forEach(function (d) {
+        var doc = d.data();
+        var otherCode = (doc.clientCode || '').toUpperCase();
+        var otherName = doc.client || '';
+        if (!otherCode || otherCode === code || seen[otherCode]) return;
+        var otherWords = significantWords(otherName);
+        var shared = otherWords.some(function (w) { return words.indexOf(w) !== -1; });
+        if (shared) { seen[otherCode] = true; match = { name: otherName, code: otherCode }; }
+      });
+      if (match) {
+        dupWarning.textContent = 'Client proche déjà connu : « ' + match.name + ' » (code ' + match.code + '). Vérifie si c\'est la même personne avant de continuer.';
+        dupWarning.hidden = false;
+      } else {
+        dupWarning.hidden = true;
+      }
+    }).catch(function () { dupWarning.hidden = true; });
+  }
+  fClient.addEventListener('change', checkDuplicateClient);
+  fClientCode.addEventListener('change', checkDuplicateClient);
 
   function safeFileName(ext) {
     var prefix = lastType === 'facture' ? 'Facture-' : 'Recu-';
@@ -1593,7 +1709,11 @@
         btnPdf.hidden = !(lastType === 'facture' && pdfReady());
         setNote(downloadsApi ? NOTE_SAVE : NOTE_COPY, false);
         exportResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        recordDocument(lastType === 'facture' ? Math.max(0, sousTotal() - remiseAmount()) : fMontant.value);
+        var montantNetFinal = lastType === 'facture' ? Math.max(0, sousTotal() - remiseAmount()) : Number(fMontant.value) || 0;
+        var resteFinal = lastType === 'facture'
+          ? (fPaiementStatut.value === 'paye' ? 0 : montantNetFinal)
+          : (Number(fReste.value) || 0);
+        recordDocument(montantNetFinal, resteFinal);
       })
       .catch(function () {
         exportResult.hidden = false;
