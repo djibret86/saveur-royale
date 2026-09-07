@@ -52,6 +52,17 @@ s'appliquent dans les deux cas.
   à ceux-là.
 - **Recherche dans l'historique** : une barre de recherche filtre par nom de
   client parmi les 50 documents les plus récents.
+- **Actions sur une ligne de l'historique** : chaque document a des boutons
+  selon son type et son statut —
+  - **Réutiliser** (toujours) : recharge le client, les saveurs/lignes, la
+    remise dans le formulaire pour créer un NOUVEAU document (numéro et date
+    remis à zéro, fidélité recalculée pour aujourd'hui plutôt que copiée).
+  - **Marquer payé** (si reste dû) : passe le reste à 0 directement dans
+    l'historique, sans regénérer le document.
+  - **Générer le reçu** (factures uniquement) : pré-remplit un reçu avec le
+    même client et montant, numéro dérivé (SR-2026-VEI-01 → SR-REC-2026-VEI-01,
+    même logique que pour Fifi). La facture d'origine n'est marquée payée
+    qu'une fois ce reçu réellement généré, pas au moment du clic.
 
 ## Constantes de marque (ne jamais improviser)
 
