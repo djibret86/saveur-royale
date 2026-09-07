@@ -59,7 +59,8 @@ N° au format `SR-REC-<année>-<seq>`. Date en toutes lettres (03 septembre 2026
 Référence : `project/Facture Vierge Saveur Royale.dc.html` (vierge) et
 `project/Facture Fifi SR-2026-FIF-04.dc.html` (remplie). **Une seule page A4**
 (210 × 297 mm, marges 11 mm / 15 mm) : contrainte dure, tout est calibré pour ça.
-Tableau de **10 lignes maximum**, en-tête noir, lignes paires en `#faf6ec`,
+Tableau **Saveur(s) / Quantité / Prix unitaire / Montant** (colonne renommée
+depuis « Désignation »), **10 lignes maximum**, en-tête noir, lignes paires en `#faf6ec`,
 dernière ligne bordée d'or. Blocs : en-tête, filet doré, Facturé à / Émetteur
 (avec NCC), tableau, encart NOTE doré + totaux (Sous-total / Remise /
 NET À PAYER en bloc noir et or), mentions, cadre Signature & cachet, pied de
