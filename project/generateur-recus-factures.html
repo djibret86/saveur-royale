@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
 <title>Reçus & Factures</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Mulish:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
 <style>
@@ -342,6 +343,27 @@
 
   .export-result .save-note { font-size: 12.5px; line-height: 1.6; color: var(--muted); margin-top: 12px; }
   .export-result .save-note.is-error { color: var(--danger); font-weight: 700; }
+
+  /* ---- Ligne prête à coller dans VENTES 2026 ---- */
+  .xl-block { margin-top: 22px; text-align: left; border: 1px solid var(--line-gold); border-radius: 10px; background: var(--cream-card); padding: 16px; }
+  .xl-block h3 { font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-deep); margin: 0 0 10px; }
+  .xl-scroll { overflow-x: auto; margin-bottom: 12px; }
+  .xl-table { border-collapse: collapse; font-size: 11.5px; white-space: nowrap; }
+  .xl-table th { font-weight: 700; color: var(--muted-soft); text-transform: uppercase; letter-spacing: 0.05em; font-size: 9.5px; padding: 0 8px 4px; text-align: left; }
+  .xl-table td { padding: 3px 8px; border-top: 1px solid var(--line); color: var(--ink); font-variant-numeric: tabular-nums; }
+  .xl-table td.xl-zero { color: #c3bbb0; }
+  .xl-warn { font-size: 12px; font-weight: 700; color: var(--danger); background: rgba(158,59,47,0.08); border: 1px solid rgba(158,59,47,0.3); border-radius: 7px; padding: 8px 11px; margin: 0 0 12px; line-height: 1.45; }
+  .xl-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  .xl-controls > div { flex: 1 1 130px; }
+  .xl-controls label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .xl-controls select, .xl-controls input { font-size: 13px; padding: 7px 9px; }
+  .xl-copies { display: flex; flex-wrap: wrap; gap: 8px; }
+  .xl-copy { font-family: var(--font-body); font-size: 12px; font-weight: 700; color: var(--gold-deep); background: var(--cream); border: 1px solid var(--line-gold); border-radius: 7px; padding: 9px 13px; cursor: pointer; }
+  .xl-copy:hover { background: var(--gold-soft); color: var(--ink-deep); }
+  .xl-copy.is-done { background: var(--ink); color: var(--gold); border-color: var(--ink); }
+  .xl-copy:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .xl-fallback { width: 100%; margin-top: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .xl-hint { font-size: 11.5px; color: var(--muted); line-height: 1.55; margin: 10px 0 0; }
 
   footer.page-foot { text-align: center; font-size: 12px; color: var(--muted-soft); padding: 0 20px 40px; }
 
@@ -894,6 +916,42 @@
         <button type="button" class="btn-outline" id="btnCopy">Copier l'image</button>
       </div>
       <p class="save-note" id="saveNote">Copie l'image, puis colle-la directement dans la conversation WhatsApp.</p>
+
+      <div class="xl-block" id="xlBlock" hidden>
+        <h3>Ligne pour VENTES 2026</h3>
+        <div class="xl-scroll"><table class="xl-table" id="xlTable"></table></div>
+        <p class="xl-warn" id="xlWarn" hidden></p>
+        <div class="xl-controls">
+          <div>
+            <label for="xlCanal">Canal — colonne S</label>
+            <select id="xlCanal">
+              <option>Client régulier</option>
+              <option>Ambulant</option>
+              <option>Grossiste</option>
+              <option>📣 Pub Meta</option>
+              <option>Site internet</option>
+            </select>
+          </div>
+          <div>
+            <label for="xlStatut">Statut — colonne T</label>
+            <select id="xlStatut">
+              <option>✅ Payé</option>
+              <option>⏳ En attente</option>
+            </select>
+          </div>
+          <div>
+            <label for="xlLivraison">Livraison — colonne P</label>
+            <input type="number" id="xlLivraison" min="0" step="100" value="1500">
+          </div>
+        </div>
+        <div class="xl-copies">
+          <button type="button" class="xl-copy" id="xlCopyAL" data-label="Copier A→L">Copier A→L</button>
+          <button type="button" class="xl-copy" id="xlCopyNP" data-label="Copier N→P">Copier N→P</button>
+          <button type="button" class="xl-copy" id="xlCopyST" data-label="Copier S→T">Copier S→T</button>
+        </div>
+        <textarea class="xl-fallback" id="xlFallback" rows="2" readonly hidden></textarea>
+        <p class="xl-hint">Ouvre VENTES 2026, place-toi sur la première ligne vide et colle chaque bloc à la cellule indiquée : A, puis N, puis S. Ne colle jamais sur M, Q et R — ce sont des formules, elles se remplissent seules.</p>
+      </div>
     </div>
   </section>
   <section class="panel history-panel" id="historyPanel" hidden aria-label="Historique des documents">
@@ -1510,6 +1568,7 @@
   }
   function hideExport() {
     exportResult.hidden = true;
+    if (typeof xlBlock !== 'undefined' && xlBlock) xlBlock.hidden = true;
     lastBlob = null; lastCanvas = null;
     if (lastObjectUrl) { URL.revokeObjectURL(lastObjectUrl); lastObjectUrl = null; }
     btnPdf.hidden = true;
@@ -1816,6 +1875,176 @@
     return (ascii || 'Saveur-Royale').slice(0, 90) + '.' + ext;
   }
 
+  // ============================================================
+  //  Ligne prête à coller dans VENTES 2026.
+  //  Le nom du client est repris tel quel du document : c'est ce qui
+  //  empêche une deuxième orthographe d'apparaître dans le fichier de
+  //  gestion, et donc la feuille Fidélité de compter un client à moitié.
+  // ============================================================
+  var xlBlock = $('xlBlock'), xlTable = $('xlTable'), xlWarn = $('xlWarn'),
+    xlCanal = $('xlCanal'), xlStatut = $('xlStatut'), xlLivraison = $('xlLivraison'),
+    xlCopyAL = $('xlCopyAL'), xlCopyNP = $('xlCopyNP'), xlCopyST = $('xlCopyST'),
+    xlFallback = $('xlFallback');
+  var xlQuantites = [];
+
+  // Ordre exact des colonnes C à L de VENTES 2026.
+  var SAVEURS_VENTES = [
+    { nom: 'Passion', keys: ['passion'] },
+    { nom: 'Chocolat', keys: ['creme de chocolat', 'chocolat'] },
+    { nom: 'Citron', keys: ['citron'] },
+    { nom: 'Ananas', keys: ['ananas'] },
+    { nom: 'Bissap', keys: ['bissap'] },
+    { nom: 'Crème de Bissap', keys: ['creme de bissap'] },
+    { nom: 'Corossol', keys: ['corossol'] },
+    { nom: 'Mandarine', keys: ['mandarine'] },
+    { nom: 'Mangoustan', keys: ['mangoustan'] },
+    { nom: 'Crème de Cocota', keys: ['creme de cocota', 'cocota'] }
+  ];
+  // Le libellé le plus long d'abord : « crème de bissap » doit gagner sur « bissap ».
+  var SAVEUR_LOOKUP = (function () {
+    var out = [];
+    SAVEURS_VENTES.forEach(function (s, i) {
+      s.keys.forEach(function (k) { out.push({ key: k, index: i }); });
+    });
+    out.sort(function (a, b) { return b.key.length - a.key.length; });
+    return out;
+  })();
+
+  function trouveSaveur(texte) {
+    var t = normalise(texte);
+    for (var i = 0; i < SAVEUR_LOOKUP.length; i++) {
+      if (t.indexOf(SAVEUR_LOOKUP[i].key) !== -1) return SAVEUR_LOOKUP[i].index;
+    }
+    return -1;
+  }
+
+  function quantitesSaveurs() {
+    var q = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], inconnus = [];
+    if (lastType === 'facture') {
+      lines.forEach(function (l) {
+        if (!l.designation || !String(l.designation).trim()) return;
+        var i = trouveSaveur(l.designation);
+        if (i === -1) { inconnus.push(String(l.designation).trim()); return; }
+        q[i] += Number(l.qte) || 0;
+      });
+    } else {
+      String(fMotif.value || '').split(/[\u00b7;\n]+/).forEach(function (part) {
+        if (!part.trim()) return;
+        var i = trouveSaveur(part);
+        if (i === -1) {
+          // « · Facture SR-2026-… » est une référence, pas une saveur oubliée.
+          if (!/facture/i.test(part)) inconnus.push(part.trim());
+          return;
+        }
+        var m = part.match(/(\d+(?:[.,]\d+)?)/);
+        q[i] += m ? Number(String(m[1]).replace(',', '.')) : 1;
+      });
+    }
+    return { q: q, inconnus: inconnus };
+  }
+
+  function dateFr(iso) {
+    var p = String(iso || '').split('-');
+    return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : String(iso || '');
+  }
+
+  // Le fichier de gestion n'a que cinq canaux ; les six types de client de
+  // l'outil s'y ramènent, et le menu reste modifiable avant de copier.
+  var CANAL_PAR_TYPE = {
+    ambulant: 'Ambulant', regulier: 'Client r\u00e9gulier', semigros: 'Grossiste',
+    gros: 'Grossiste', prive: 'Client r\u00e9gulier', institution: 'Client r\u00e9gulier'
+  };
+
+  // La colonne Remise est stockée en fraction (0,1 = 10 %).
+  function remiseFraction() {
+    if (lastType !== 'facture') return '';
+    var st = sousTotal(), montant = remiseAmount();
+    if (!montant || !st) return '';
+    return String(Math.round((montant / st) * 10000) / 10000);
+  }
+
+  function xlEchappe(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderExcelRow() {
+    var res = quantitesSaveurs();
+    xlQuantites = res.q;
+    var total = res.q.reduce(function (a, b) { return a + b; }, 0);
+
+    var head = '<tr><th>Date (A)</th><th>Client (B)</th>';
+    var body = '<tr><td>' + xlEchappe(dateFr(fDate.value)) + '</td><td><strong>'
+      + xlEchappe(fClient.value) + '</strong></td>';
+    SAVEURS_VENTES.forEach(function (s, i) {
+      head += '<th>' + xlEchappe(s.nom) + '</th>';
+      body += '<td class="' + (res.q[i] ? '' : 'xl-zero') + '">' + (res.q[i] || '\u2014') + '</td>';
+    });
+    xlTable.innerHTML = head + '<th>Total</th></tr>' + body + '<td><strong>' + total + '</strong></td></tr>';
+
+    if (res.inconnus.length) {
+      xlWarn.hidden = false;
+      xlWarn.textContent = 'Saveur non reconnue : ' + res.inconnus.join(' \u00b7 ')
+        + '. Sa quantité est à saisir à la main dans Excel.';
+    } else if (!total) {
+      xlWarn.hidden = false;
+      xlWarn.textContent = 'Aucune saveur détectée \u2014 les quantités sont à saisir à la main dans Excel.';
+    } else {
+      xlWarn.hidden = true;
+    }
+
+    xlCanal.value = lastType === 'facture'
+      ? (CANAL_PAR_TYPE[fTypeClient.value] || 'Client r\u00e9gulier')
+      : 'Client r\u00e9gulier';
+    var impaye = lastType === 'facture'
+      ? fPaiementStatut.value !== 'paye'
+      : (Number(fReste.value) || 0) > 0;
+    xlStatut.value = impaye ? '\u23f3 En attente' : '\u2705 Pay\u00e9';
+
+    xlFallback.hidden = true;
+    [xlCopyAL, xlCopyNP, xlCopyST].forEach(function (b) {
+      b.classList.remove('is-done');
+      b.textContent = b.getAttribute('data-label');
+    });
+    xlBlock.hidden = false;
+  }
+
+  function xlManuel(texte) {
+    xlFallback.hidden = false;
+    xlFallback.value = texte;
+    xlFallback.focus();
+    xlFallback.select();
+  }
+
+  function xlCopie(btn, texte) {
+    function fait() {
+      btn.classList.add('is-done');
+      btn.textContent = 'Copi\u00e9 \u2713';
+      setTimeout(function () {
+        btn.classList.remove('is-done');
+        btn.textContent = btn.getAttribute('data-label');
+      }, 2200);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texte).then(fait, function () { xlManuel(texte); });
+    } else {
+      xlManuel(texte);
+    }
+  }
+
+  xlCopyAL.addEventListener('click', function () {
+    var cells = [dateFr(fDate.value), fClient.value || ''];
+    for (var i = 0; i < 10; i++) cells.push(xlQuantites[i] ? String(xlQuantites[i]) : '');
+    xlCopie(xlCopyAL, cells.join('\t'));
+  });
+  xlCopyNP.addEventListener('click', function () {
+    // N remise, O coffret (laissé vide), P livraison
+    xlCopie(xlCopyNP, [remiseFraction(), '', xlLivraison.value || ''].join('\t'));
+  });
+  xlCopyST.addEventListener('click', function () {
+    xlCopie(xlCopyST, [xlCanal.value, xlStatut.value].join('\t'));
+  });
+
   btnGenerate.addEventListener('click', function () {
     if (typeof html2canvas === 'undefined') {
       exportResult.hidden = false;
@@ -1855,6 +2084,7 @@
           ? (fPaiementStatut.value === 'paye' ? 0 : montantNetFinal)
           : (Number(fReste.value) || 0);
         recordDocument(montantNetFinal, resteFinal);
+        renderExcelRow();
       })
       .catch(function () {
         exportResult.hidden = false;
@@ -1924,3 +2154,5 @@
   setDocType(docType);
 })();
 </script>
+
+</body></html>
