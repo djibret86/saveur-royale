@@ -335,6 +335,34 @@
 
   footer.page-foot { text-align: center; font-size: 12px; color: var(--muted-soft); padding: 0 20px 40px; }
 
+  .history-toggle-row { text-align: center; padding: 0 20px 28px; }
+
+  .history-panel { grid-column: 1 / -1; margin: 4px 0 0; padding: 22px; }
+  .history-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .history-head h2 {
+    font-family: var(--font-display); font-size: 15px; font-weight: 600;
+    letter-spacing: 0.06em; color: var(--ink-deep); margin: 0;
+  }
+  .history-row {
+    display: grid;
+    grid-template-columns: 92px 1fr 1fr auto;
+    gap: 12px;
+    align-items: baseline;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .history-row:first-child { border-top: none; }
+  .history-date { color: var(--muted-soft); font-variant-numeric: tabular-nums; }
+  .history-numero { font-weight: 700; color: var(--ink); }
+  .history-client { color: var(--muted); }
+  .history-montant { font-variant-numeric: tabular-nums; text-align: right; color: var(--ink); }
+  .history-type {
+    display: inline-block; font-family: var(--font-display); font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-deep);
+    margin-right: 8px;
+  }
+
   /* ============================================================
      THE RECEIPT — exact replica of the validated WhatsApp model
      ============================================================ */
@@ -473,16 +501,26 @@
       <div class="row-2">
         <div class="field">
           <label for="fNumero">Numéro</label>
-          <input type="text" id="fNumero" value="SR-REC-2026-01">
+          <div class="field-with-action">
+            <input type="text" id="fNumero" value="SR-REC-2026-01">
+            <button type="button" class="icon-btn" id="btnSuggestNumero" title="Suggérer le prochain numéro" hidden>#</button>
+          </div>
         </div>
         <div class="field">
           <label for="fDate">Date</label>
           <input type="date" id="fDate">
         </div>
       </div>
-      <div class="field">
-        <label for="fClient">Nom du client</label>
-        <input type="text" id="fClient" value="Fifi">
+      <div class="row-2">
+        <div class="field">
+          <label for="fClient">Nom du client</label>
+          <input type="text" id="fClient" value="Fifi">
+        </div>
+        <div class="field">
+          <label for="fClientCode">Code client</label>
+          <input type="text" id="fClientCode" value="FIF" maxlength="8" style="text-transform: uppercase;">
+          <span class="sub">Utilisé pour numéroter (ex. VEI, BONI) — modifiable.</span>
+        </div>
       </div>
       <div class="field">
         <label for="fBouteilles">Bouteilles cumulées en <span id="tierYear">2026</span></label>
@@ -557,6 +595,23 @@
 
     <!-- ============ FACTURE ============ -->
     <div id="paneFacture" hidden>
+      <fieldset>
+        <legend>Type de client</legend>
+        <div class="field">
+          <label for="fTypeClient">Type</label>
+          <select id="fTypeClient">
+            <option value="ambulant">Ambulant / passant</option>
+            <option value="regulier" selected>Client régulier fidèle</option>
+            <option value="semigros">Semi-grossiste</option>
+            <option value="gros">Grossiste</option>
+            <option value="prive">Ventes privées / événements</option>
+            <option value="institution">Institutions / entreprises</option>
+          </select>
+          <div class="tier-readout" id="typeClientReadout"></div>
+          <span class="sub">Fixe les conditions de paiement affichées en pied de page. Le plafond de remise est indicatif — la remise reste à ta décision.</span>
+        </div>
+      </fieldset>
+
       <fieldset>
         <legend>Lignes facturées</legend>
         <div class="lines-head">
@@ -773,7 +828,7 @@
               <div>BP&nbsp;: 25 BP 823 Abidjan 25</div>
               <div>RCCM&nbsp;: CI-ABJ-03-2025-B12-05092 (Tribunal de Commerce d&rsquo;Abidjan)</div>
               <div>www.saveurroyale.com</div>
-              <div>Conditions&nbsp;: Paiement à réception</div>
+              <div id="invConditions">Conditions&nbsp;: Paiement à réception</div>
             </div>
             <div class="inv-bank">
               <span class="inv-bank-label">Coordonnées bancaires</span>
@@ -800,7 +855,19 @@
       <p class="save-note" id="saveNote">Copie l'image, puis colle-la directement dans la conversation WhatsApp.</p>
     </div>
   </section>
+  <section class="panel history-panel" id="historyPanel" hidden aria-label="Historique des documents">
+    <div class="history-head">
+      <h2>Historique</h2>
+      <button type="button" class="btn-ghost" id="btnCloseHistory">Fermer</button>
+    </div>
+    <p class="sub" id="historyEmpty">Aucun document enregistré pour l'instant.</p>
+    <div id="historyList"></div>
+  </section>
 </main>
+
+<div class="history-toggle-row" id="historyToggleRow" hidden>
+  <button type="button" class="btn-outline" id="btnOpenHistory">Voir l'historique</button>
+</div>
 
 <footer class="page-foot">Maison Saveur Royale — modèles officiels reçu et facture ; les coordonnées de l'émetteur sont fixes.</footer>
 
@@ -921,15 +988,27 @@
     return (fDate.value ? fDate.value.split('-')[0] : String(new Date().getFullYear()));
   }
 
+  // ---- Types de client (PARAMÈTRES §5 du fichier de gestion) ----
+  // Le plafond de remise est indicatif seulement — jamais appliqué automatiquement.
+  var TYPES_CLIENT = {
+    ambulant: { conditions: 'Paiement immédiat', delai: 'Immédiat (cash)', plafond: '0 %' },
+    regulier: { conditions: 'Paiement à réception', delai: 'Immédiat (cash / mobile)', plafond: '10 %' },
+    semigros: { conditions: 'Paiement à réception (48h max)', delai: 'Immédiat à 48h', plafond: '10–15 %' },
+    gros: { conditions: 'Paiement sous 72h', delai: '24h à 72h', plafond: '15–20 %' },
+    prive: { conditions: 'Acompte à la commande, solde à 7 jours', delai: 'Acompte + solde J+7', plafond: '10 %' },
+    institution: { conditions: 'Paiement à 30 jours', delai: '30 jours', plafond: '10 %' }
+  };
+
   // ---- Elements ----
   var tabRecu = $('tabRecu'), tabFacture = $('tabFacture'), legendDoc = $('legendDoc'),
     paneRecu = $('paneRecu'), paneFacture = $('paneFacture'), wrapFidNiveau = $('wrapFidNiveau');
 
-  var fNumero = $('fNumero'), fDate = $('fDate'), fClient = $('fClient'), fFidNiveau = $('fFidNiveau'),
-    fMotif = $('fMotif'), fMontant = $('fMontant'), fLettres = $('fLettres'), fMode = $('fMode'),
-    fModeAutre = $('fModeAutre'), fModeAutreWrap = $('fModeAutreWrap'), fReste = $('fReste'),
+  var fNumero = $('fNumero'), fDate = $('fDate'), fClient = $('fClient'), fClientCode = $('fClientCode'),
+    fFidNiveau = $('fFidNiveau'), fMotif = $('fMotif'), fMontant = $('fMontant'), fLettres = $('fLettres'),
+    fMode = $('fMode'), fModeAutre = $('fModeAutre'), fModeAutreWrap = $('fModeAutreWrap'), fReste = $('fReste'),
     fFideliteOn = $('fFideliteOn'), fFidelite = $('fFidelite'), fBouteilles = $('fBouteilles'),
-    fRemise = $('fRemise'), fRemiseType = $('fRemiseType'), fNote = $('fNote'), fBanque = $('fBanque');
+    fRemise = $('fRemise'), fRemiseType = $('fRemiseType'), fNote = $('fNote'), fBanque = $('fBanque'),
+    fTypeClient = $('fTypeClient');
 
   var receiptEl = $('receipt'), invoiceEl = $('invoice'),
     previewFrame = $('previewFrame'), previewScaler = $('previewScaler');
@@ -937,7 +1016,22 @@
   var MAX_LINES = 10;
   var docType = 'recu';
   var lettresManual = false;
+  var clientCodeManual = false;
   var lines = [{ designation: 'Passion', qte: 1, pu: 7000 }];
+
+  // ---- Code client : suggéré depuis le nom (titre ignoré), toujours modifiable ----
+  var TITRES_CLIENT = ['col', 'mme', 'mr', 'm', 'dr', 'pr', 'mlle', 'cdt'];
+  function suggestClientCode(name) {
+    var words = String(name || '').trim().split(/\s+/).filter(Boolean);
+    words = words.filter(function (w) { return TITRES_CLIENT.indexOf(w.toLowerCase().replace(/\.$/, '')) === -1; });
+    var pick = words[0] || String(name || '').trim();
+    var ascii = pick.normalize ? pick.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : pick;
+    return ascii.replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 4);
+  }
+  fClient.addEventListener('input', function () {
+    if (!clientCodeManual) fClientCode.value = suggestClientCode(fClient.value);
+  });
+  fClientCode.addEventListener('input', function () { clientCodeManual = true; });
 
   function activeDoc() { return docType === 'facture' ? invoiceEl : receiptEl; }
 
@@ -1146,6 +1240,10 @@
     $('invBanque').textContent = fBanque.value || '';
     $('linesSubtotal').textContent = formatFCFA(st) + ' F';
 
+    var typeInfo = TYPES_CLIENT[fTypeClient.value] || TYPES_CLIENT.regulier;
+    $('invConditions').textContent = 'Conditions : ' + typeInfo.conditions;
+    $('typeClientReadout').textContent = 'Délai habituel : ' + typeInfo.delai + ' · Plafond de remise indicatif : ' + typeInfo.plafond;
+
     rescale();
   }
 
@@ -1229,8 +1327,8 @@
     render();
   });
 
-  [fNumero, fDate, fClient, fFidNiveau, fMotif, fModeAutre, fReste, fFideliteOn, fFidelite,
-   fBouteilles, fRemise, fRemiseType, fNote, fBanque].forEach(function (el) {
+  [fNumero, fDate, fClient, fClientCode, fFidNiveau, fMotif, fModeAutre, fReste, fFideliteOn, fFidelite,
+   fBouteilles, fRemise, fRemiseType, fNote, fBanque, fTypeClient].forEach(function (el) {
     el.addEventListener('input', render);
     el.addEventListener('change', render);
   });
@@ -1245,6 +1343,9 @@
     fNumero.value = docType === 'facture' ? 'SR-2026-01' : 'SR-REC-2026-01';
     fDate.value = todayISO();
     fClient.value = '';
+    fClientCode.value = '';
+    clientCodeManual = false;
+    fTypeClient.value = 'regulier';
     fFidNiveau.value = '';
     fMotif.value = '';
     fMontant.value = '';
@@ -1279,6 +1380,7 @@
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({
         docType: docType, numero: fNumero.value, date: fDate.value, client: fClient.value,
+        clientCode: fClientCode.value, clientCodeManual: clientCodeManual, typeClient: fTypeClient.value,
         fidNiveau: fFidNiveau.value, motif: fMotif.value, montant: fMontant.value,
         lettres: fLettres.value, lettresManual: lettresManual, mode: fMode.value,
         modeAutre: fModeAutre.value, reste: fReste.value, fideliteOn: fFideliteOn.checked,
@@ -1295,6 +1397,9 @@
       fNumero.value = d.numero || fNumero.value;
       fDate.value = d.date || todayISO();
       fClient.value = d.client || '';
+      fClientCode.value = d.clientCode || suggestClientCode(d.client || '');
+      clientCodeManual = !!d.clientCodeManual;
+      fTypeClient.value = d.typeClient || 'regulier';
       fFidNiveau.value = d.fidNiveau || '';
       fMotif.value = d.motif || '';
       fMontant.value = d.montant || '';
@@ -1358,6 +1463,94 @@
     } catch (e) { /* older host — copy stays the path */ }
   }
 
+  // ---- Historique partagé entre tes appareils (numérotation + liste des documents) ----
+  var dbApi = null;
+  var btnSuggestNumero = $('btnSuggestNumero'), historyToggleRow = $('historyToggleRow'),
+    btnOpenHistory = $('btnOpenHistory'), btnCloseHistory = $('btnCloseHistory'),
+    historyPanel = $('historyPanel'), historyList = $('historyList'), historyEmpty = $('historyEmpty');
+
+  if (window.claude && typeof window.claude.use === 'function') {
+    try {
+      window.claude.use('db').then(function (api) {
+        if (!api) return;
+        dbApi = api;
+        btnSuggestNumero.hidden = false;
+        historyToggleRow.hidden = false;
+        subscribeHistory();
+      }).catch(function () { /* indisponible — numérotation et historique manuels */ });
+    } catch (e) { /* ancien hôte — numérotation et historique manuels */ }
+  }
+
+  function docTypeKey() { return docType === 'facture' ? 'facture' : 'recu'; }
+
+  btnSuggestNumero.addEventListener('click', function () {
+    if (!dbApi) return;
+    var code = (fClientCode.value || suggestClientCode(fClient.value) || 'CLI').toUpperCase();
+    var an = anneeDoc();
+    btnSuggestNumero.disabled = true;
+    dbApi.collection('documents')
+      .where('type', '==', docTypeKey())
+      .where('clientCode', '==', code)
+      .where('year', '==', Number(an))
+      .get()
+      .then(function (snap) {
+        var seq = String(snap.size + 1).padStart(2, '0');
+        fNumero.value = docType === 'facture'
+          ? 'SR-' + an + '-' + code + '-' + seq
+          : 'SR-REC-' + an + '-' + code + '-' + seq;
+        if (!fClientCode.value) fClientCode.value = code;
+        render(); saveDraft();
+      })
+      .catch(function () { /* la suggestion échoue silencieusement — le champ reste modifiable à la main */ })
+      .then(function () { btnSuggestNumero.disabled = false; });
+  });
+
+  // Un enregistrement par document réellement généré — l'id reprend le numéro
+  // pour qu'une régénération du même document mette à jour sa ligne plutôt que
+  // d'en créer une seconde.
+  function recordDocument(montantNet) {
+    if (!dbApi) return;
+    var an = anneeDoc();
+    var code = (fClientCode.value || suggestClientCode(fClient.value) || 'CLI').toUpperCase();
+    var rawId = docTypeKey() + '-' + (fNumero.value || 'sans-numero');
+    var id = rawId.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^A-Za-z0-9._-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 120);
+    dbApi.collection('documents').doc(id).set({
+      type: docTypeKey(), numero: fNumero.value || '', client: fClient.value || '',
+      clientCode: code, year: Number(an), date: fDate.value || '',
+      montantNet: Math.round(Number(montantNet) || 0), createdAt: new Date().toISOString()
+    }).catch(function () { /* l'historique reste local à défaut — le document est déjà généré */ });
+  }
+
+  function renderHistoryRow(doc) {
+    var row = document.createElement('div');
+    row.className = 'history-row';
+    var dateStr = doc.date ? formatDateCourt(doc.date) : '';
+    row.innerHTML =
+      '<span class="history-date"></span>' +
+      '<span><span class="history-type"></span><span class="history-numero"></span></span>' +
+      '<span class="history-client"></span>' +
+      '<span class="history-montant"></span>';
+    row.children[0].textContent = dateStr;
+    row.querySelector('.history-type').textContent = doc.type === 'facture' ? 'Facture' : 'Reçu';
+    row.querySelector('.history-numero').textContent = doc.numero || '';
+    row.children[2].textContent = doc.client || '';
+    row.children[3].textContent = doc.montantNet ? formatFCFA(doc.montantNet) + ' F' : '';
+    return row;
+  }
+
+  function subscribeHistory() {
+    if (!dbApi) return;
+    dbApi.collection('documents').orderBy('createdAt', 'desc').limit(50).onSnapshot(function (snap) {
+      historyList.textContent = '';
+      snap.docs.forEach(function (d) { historyList.appendChild(renderHistoryRow(d.data())); });
+      historyEmpty.hidden = snap.docs.length > 0;
+    }, function () { /* affichage local uniquement en cas d'erreur */ });
+  }
+
+  btnOpenHistory.addEventListener('click', function () { historyPanel.hidden = false; historyPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  btnCloseHistory.addEventListener('click', function () { historyPanel.hidden = true; });
+
   function safeFileName(ext) {
     var prefix = lastType === 'facture' ? 'Facture-' : 'Recu-';
     var raw = prefix + (fNumero.value || 'Saveur-Royale') + '-' + (fClient.value || '');
@@ -1400,6 +1593,7 @@
         btnPdf.hidden = !(lastType === 'facture' && pdfReady());
         setNote(downloadsApi ? NOTE_SAVE : NOTE_COPY, false);
         exportResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        recordDocument(lastType === 'facture' ? Math.max(0, sousTotal() - remiseAmount()) : fMontant.value);
       })
       .catch(function () {
         exportResult.hidden = false;

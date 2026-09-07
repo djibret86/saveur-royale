@@ -21,6 +21,24 @@ Quand Djibret demande une facture ou un reçu, on peut soit le renvoyer vers
 l'outil, soit générer le document directement — les règles ci-dessous
 s'appliquent dans les deux cas.
 
+**Fonctions ajoutées, partagées entre ses appareils (capacité `db` de l'outil) :**
+- **Numérotation automatique** : à côté du champ Numéro, le bouton **#** propose
+  le prochain numéro pour ce client + ce type de document + cette année, à
+  partir de l'historique déjà enregistré. Le « Code client » (à côté du nom,
+  auto-suggéré depuis le nom mais toujours modifiable) sert de clé — vérifier
+  qu'il correspond au code déjà utilisé pour ce client (ex. toujours VEI pour
+  Col Vei Sylvain), sinon la numérotation repart de 01 sous un nouveau code.
+- **Historique** : chaque document réellement généré (bouton « Générer ») est
+  enregistré (numéro, client, montant, date) et consultable via « Voir
+  l'historique » en bas de l'outil — utile pour retrouver ce qui a été émis
+  sans fouiller WhatsApp.
+- **Type de client** (facture uniquement) : Ambulant / Client régulier /
+  Semi-grossiste / Grossiste / Ventes privées / Institutions — reprend les
+  délais de paiement de `PARAMÈTRES` §5 du fichier de gestion et met à jour
+  automatiquement la mention « Conditions » en pied de page. Affiche aussi le
+  plafond de remise de ce type de client à titre indicatif — jamais appliqué
+  automatiquement, la remise reste une décision de Djibret.
+
 ## Constantes de marque (ne jamais improviser)
 
 | | |
