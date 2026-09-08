@@ -83,9 +83,22 @@ NCC 2506300G · RCCM CI-ABJ-03-2025-B12-05092 (Tribunal de Commerce d'Abidjan) �
 BP 25 BP 823 Abidjan 25 · www.saveurroyale.com · Conditions : Paiement à réception.
 **Coordonnées bancaires** : non communiquées à ce jour — zone laissée vide/éditable.
 
-**Règles de charte :** jamais d'emoji sur les documents. Aucune couleur en dehors
-de l'or, du noir et du blanc/crème. Mention « TVA non applicable — régime TEE »
-sous le total.
+**Règles de charte :** jamais d'emoji sur les documents. Mention « TVA non
+applicable — régime TEE » sous le total.
+
+**« Saveur Royale » est une marque déposée.** Le symbole **®** accompagne le nom
+partout où c'est nécessaire : sur le nom en en-tête et sur la ligne
+d'identification du pied de page. Deux occurrences par document suffisent — le
+répéter à chaque mention l'affaiblit. Le ® est en or `#C9A84C`, en exposant,
+à environ 45 % de la taille du texte porteur.
+
+**Couleurs — deux règles distinctes selon le support :**
+- **Documents commerciaux** (facture, reçu) : uniquement l'or, le noir et le
+  blanc/crème.
+- **Cartes de fidélité** : ce sont des objets de marque, pas des documents.
+  Chaque palier a sa couleur — Or `#C9A84C`, Rubis `#E8365F`, Diamant `#38BDF8`,
+  Platinum `#DCE3EC` — sur fond noir. C'est un choix validé par Djibret, à ne pas
+  « corriger » au nom de la règle ci-dessus.
 
 ## Les deux modèles
 
