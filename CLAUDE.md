@@ -235,13 +235,37 @@ permanent : redemander le fichier (ou la ligne qui m'intéresse) au besoin.
   intermédiaire pendant son voyage — les ventes sous son nom dans `VENTES 2026`
   sont réelles, ce statut ne les invalide pas.
 
-**Fusions de noms confirmées par Djibret** (à cumuler sous le nom unique donné,
-tant qu'aucun classeur mis à jour ne les a déjà mergées) :
-- COLONEL VEI = COL VEI SYLVAIN → **Col Vei Sylvain**
+**Deux périmètres à ne jamais confondre :**
+- **Ancienneté** (« membre depuis » sur la carte) : parcourir **toutes** les
+  feuilles de ventes — `VENTES 2025` *et* `VENTES 2026` — et prendre la **date
+  la plus ancienne**. `FICHES CLIENTS` ne donne que la *dernière* commande, pas
+  la première ; `HISTORIQUE 10 ANS` est par année, sans nom de client.
+- **Statut** (palier, remise, carte) : **`VENTES 2026` uniquement**. La remise
+  est remise à zéro au 1er janvier.
+
+Dans les deux cas, regrouper d'abord les orthographes du même client — sinon
+l'ancienneté est trop récente et le palier trop bas. **Ne jamais fusionner en
+chaîne** : si A ressemble à B et B à C, cela ne fait pas de A et C la même
+personne (essayé, « Richarde Yao » avait absorbé « Pisam » et « Maman »).
+
+**Fusions confirmées par Djibret** (à cumuler sous le nom unique donné) :
+- COLONEL VEI = VEI SYLVAIN = COL VEI SYLVAIN → **Col Vei Sylvain**
 - MME ADREILLE BONI KONG (alias **« Boniking »** sur WhatsApp) = MIREILLE BONI
-  → **Mireille Boni**. Vu dans `VENTES 2026` : 11 btl sous « Mireille Boni »
-  (4 commandes) + 2 btl sous « Mme Adreille Boni Kong » (1 commande) = 13 btl
-  réelles avant toute nouvelle commande.
+  → **Mireille Boni** (13 btl en 2026)
+- CLM NANGA = COL M NANGA → **Col M Nanga** (25 btl → Rubis)
+- MME ADJI = Mme Josianne ADJI = JOSIANNE ADJI → **Josianne Adji** (30 btl → Rubis)
+- YVAN = MR YVAN = M. Yvan = AMBULANT/YVAN → **M. Yvan** (14 btl → Or)
+- MOBOU = Mme MOBOU = MME MOBOU → **Mme Mobou** (10 btl). « **Amie** Mme Mobou »
+  est **quelqu'un d'autre** — ne pas l'y ajouter, ça lui ferait franchir l'Or à tort.
+- CHRISTELLE SANGARÉ = CHRISTELLE SANGARE → **Christelle Sangaré**
+- DIABY = **DIBY** (orthographe correcte : Diby)
+- AMISSA = **MME AMISSA**
+
+**Pièges de nommage repérés dans le fichier :** « AMBULANT », « AMBULANT/<lieu> »,
+« XX », « CLIENTE <lieu> » ne sont pas des clients mais des passants anonymes
+regroupés sous une même étiquette — ils ne reçoivent pas de carte, même quand le
+cumul dépasse un seuil. Et un libellé commençant par « AMI(E) DE X » désigne un
+proche de X, pas X.
 
 ## Manière de travailler avec Djibret
 
