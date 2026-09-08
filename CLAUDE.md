@@ -2,7 +2,7 @@
 
 Liquoristerie artisanale, Abidjan, Côte d'Ivoire. Propriétaire : **Djibret**.
 Régime **TEE** — TVA non applicable. Ce dépôt contient les modèles validés de
-**facture** et de **reçu**, et l'outil qui les génère.
+**facture**, de **reçu** et de **carte de fidélité**, et l'outil qui les génère.
 
 > Contexte complet (fichier Excel de gestion, historique clients, décisions
 > passées, alertes ouvertes) : **`PASSATION_CLAUDE_CODE.md`** — à lire avant
@@ -100,7 +100,34 @@ répéter à chaque mention l'affaiblit. Le ® est en or `#C9A84C`, en exposant,
   Platinum `#DCE3EC` — sur fond noir. C'est un choix validé par Djibret, à ne pas
   « corriger » au nom de la règle ci-dessus.
 
-## Les deux modèles
+## Les trois modèles
+
+### Carte de fidélité — format WhatsApp
+Troisième onglet de l'outil. Largeur **1080 px**, hauteur libre. Elle se remplit
+entièrement à partir du **nom du client** et du **cumul de bouteilles** déjà
+saisis en haut du formulaire : le palier, la remise, la progression et les
+avantages en découlent. Seul champ propre : « Membre depuis » (date de la
+première commande, facultative).
+
+Composition : salutation « Bonjour <nom> », puis la carte elle-même (logotype
+teinté au palier + ®, slogan, chiffre romain + nom du palier, mention de rang,
+titulaire, bande à trois chiffres **bouteilles / remise / membre depuis**, barre
+de progression), puis les avantages en médaillons, puis le pied de page.
+
+**Sous 12 bouteilles**, la carte prend l'habit Or mais dit « EN PROGRESSION /
+FUTUR MEMBRE », la remise affiche « — », et le titre des avantages devient
+« AVANTAGES À VENIR · CERCLE OR » : ces avantages ne sont pas encore acquis, le
+document ne doit pas laisser croire le contraire.
+
+**Avantages par palier** (validés par Djibret) — Or : −5 %, alertes
+avant-première, emballage offert. Rubis : −8 %, +1 btl, livraison offerte dès
+3 btl, accès prioritaire au stock. Diamant : −12 %, +1 btl, livraison
+systématique, 2 places événement. Platinum : −15 %, +2 btl, livraison
+systématique, 4 places événement, cuvées en avant-première.
+
+Sa **ligne à copier** ne va pas dans `VENTES 2026` mais dans la colonne B de
+`🎴 FIDÉLITÉ CLIENT`, qui est une liste manuelle : un client absent de cette
+colonne ne verra jamais sa carte se mettre à jour.
 
 ### Reçu — format WhatsApp
 Référence : `project/Reçu Fifi WhatsApp.dc.html`. Largeur fixe **1080 px**,
