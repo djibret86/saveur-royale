@@ -259,7 +259,23 @@ personne (essayé, « Richarde Yao » avait absorbé « Pisam » et « Maman »)
   est **quelqu'un d'autre** — ne pas l'y ajouter, ça lui ferait franchir l'Or à tort.
 - CHRISTELLE SANGARÉ = CHRISTELLE SANGARE → **Christelle Sangaré**
 - DIABY = **DIBY** (orthographe correcte : Diby)
-- AMISSA = **MME AMISSA**
+- AMISSA = AMBULANT AMISSA BOUAKE = **Mme Amissa** (ancienneté : avril 2025)
+- CDT WASSE = WASSE TAGO → **Wassé Tago** (ancienneté : mars 2025)
+- RESI = **Resi Martel** · AMBULANT MOBIO LAURENCE = **Laurence**
+- AMBULANT WILFRIED = **Wilfried** · KIZERBO = **Emmanuel Kizerbo**
+- COL ABOUGNAN CADEAU = **Col Abougnan** (« cadeau » qualifie la commande,
+  pas une autre personne) · VANGAH FRANCINE BONOUA = **Mme Vangah**
+- MME MAIE = **Mme Maie Meli**
+
+**Libellés qui se ressemblent mais désignent des personnes différentes** —
+vérifié, ne pas fusionner : « Amie Mme Mobou » ≠ Mme Mobou (la fusionner ferait
+passer Mme Mobou à 12 btl et lui donnerait l'Or à tort) · « Ami Fifi » ≠ Fifi ·
+« Mme N'Drin » ≠ N'Drin Yannick · « Amie de Jésus » ≠ Jésus · « Col Cissé » ≠
+« Elvire Cissé » · « Vente privée Ste Marie » ≠ « Vente privée Cité BCEAO ».
+
+**Encore indécis, à trancher un jour** : Mme Koné / Koné Ephaco (Koné est un nom
+très répandu) · Mme Messou Meli / GL Messou · Ambulant Laeticia Bonoua /
+Ambulant Laeticia Oulai. Aucun n'a d'effet sur un palier 2026.
 
 **Pièges de nommage repérés dans le fichier :** « AMBULANT », « AMBULANT/<lieu> »,
 « XX », « CLIENTE <lieu> » ne sont pas des clients mais des passants anonymes
