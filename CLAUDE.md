@@ -236,10 +236,15 @@ permanent : redemander le fichier (ou la ligne qui m'intéresse) au besoin.
   sont réelles, ce statut ne les invalide pas.
 
 **Deux périmètres à ne jamais confondre :**
-- **Ancienneté** (« membre depuis » sur la carte) : parcourir **toutes** les
-  feuilles de ventes — `VENTES 2025` *et* `VENTES 2026` — et prendre la **date
-  la plus ancienne**. `FICHES CLIENTS` ne donne que la *dernière* commande, pas
-  la première ; `HISTORIQUE 10 ANS` est par année, sans nom de client.
+- **Ancienneté** (« membre depuis » sur la carte) : chercher dans **toutes** les
+  feuilles de ventes *et* dans **`HISTORIQUE 10 ANS`**. Cette dernière porte, en
+  bas (lignes 50-61), un bloc **« TOP CLIENTS FIDÈLES SUR 10 ANS »** avec une
+  colonne **DEPUIS** — une année, saisie en texte. **Elle prime sur les feuilles
+  de vente**, qui ne remontent qu'à 2025 : Col Vei Sylvain y est client
+  **depuis 2019**, Col Oria **2023**, Richarde Yao **2024**, Mme Mobou **2023**,
+  Kiki **2020**, Sandy Candy 2018, Azarah Bio 2019. Sans ce bloc, on daterait
+  Col Vei Sylvain de février 2025 — six ans trop tard.
+  `FICHES CLIENTS` ne donne que la *dernière* commande, jamais la première.
 - **Statut** (palier, remise, carte) : **`VENTES 2026` uniquement**. La remise
   est remise à zéro au 1er janvier.
 
@@ -253,7 +258,9 @@ personne (essayé, « Richarde Yao » avait absorbé « Pisam » et « Maman »)
 - MME ADREILLE BONI KONG (alias **« Boniking »** sur WhatsApp) = MIREILLE BONI
   → **Mireille Boni** (13 btl en 2026)
 - CLM NANGA = COL M NANGA → **Col M Nanga** (25 btl → Rubis)
-- MME ADJI = Mme Josianne ADJI = JOSIANNE ADJI → **Josianne Adji** (30 btl → Rubis)
+- MME ADJI = Mme Josianne ADJI = JOSIANNE ADJI → **Josiane ADJI** (30 btl → Rubis).
+  Orthographe correcte donnée par Djibret : **Josiane avec un seul N**, donc même
+  les lignes déjà écrites « JOSIANNE ADJI » sont à corriger.
 - YVAN = MR YVAN = M. Yvan = AMBULANT/YVAN → **M. Yvan** (14 btl → Or)
 - MOBOU = Mme MOBOU = MME MOBOU → **Mme Mobou** (10 btl). « **Amie** Mme Mobou »
   est **quelqu'un d'autre** — ne pas l'y ajouter, ça lui ferait franchir l'Or à tort.
