@@ -620,6 +620,7 @@
   .invoice .inv-sign { margin-top: 10px; text-align: center; }
   .invoice .inv-sign-box { height: 90px; border: 1px dashed #ded5c2; border-radius: 4px; }
   .invoice .inv-sign-label { font-family: 'Cinzel', Georgia, serif; font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: #8a8178; margin-top: 6px; }
+  .invoice .inv-arrete { margin-top: 10px; font-size: 9.5px; font-style: italic; color: #4a423a; text-align: center; }
   .invoice .inv-spacer { flex: 1 1 auto; }
   .invoice .inv-foot { padding-top: 10px; border-top: 1px solid #C9A84C; }
   .invoice .inv-foot-brand { font-family: 'Cinzel', Georgia, serif; font-size: 10.5px; letter-spacing: 0.12em; color: #1a1610; }
@@ -994,6 +995,8 @@
               </div>
             </div>
           </div>
+
+          <div class="inv-arrete" id="invArrete">Arrêté la présente facture à la somme de sept mille francs CFA.</div>
 
           <div class="inv-spacer"></div>
 
@@ -1532,6 +1535,11 @@
       : 'Remise';
     $('invRemise').textContent = rem > 0 ? '− ' + formatFCFA(rem) + ' F' : '—';
     $('invNet').textContent = formatFCFA(net) + ' FCFA';
+
+    // Mention légale : même montant que Net à payer, en toutes lettres.
+    var netLettres = montantEnLettres(net);
+    netLettres = netLettres.charAt(0).toLowerCase() + netLettres.slice(1);
+    $('invArrete').textContent = 'Arrêté la présente facture à la somme de ' + netLettres + '.';
 
     // Mention obligatoire dès qu'une remise est appliquée.
     var mention = $('invRemiseMention');
