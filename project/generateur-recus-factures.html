@@ -590,6 +590,15 @@
   .invoice .inv-fields { display: grid; gap: 13px; font-size: 10px; }
   .invoice .inv-flabel { letter-spacing: 0.08em; text-transform: uppercase; color: #8a8178; }
   .invoice .inv-fvalue { font-family: 'Mulish', system-ui, sans-serif; font-size: 11.5px; color: #1a1610; height: 17px; display: flex; align-items: flex-end; border-bottom: 1px solid #ded5c2; overflow: hidden; white-space: nowrap; }
+  .invoice .inv-fvalue--niveau { justify-content: space-between; align-items: center; gap: 8px; }
+  .invoice .inv-fvalue--niveau span:first-child { overflow: hidden; text-overflow: ellipsis; }
+  .invoice .inv-tier-badge {
+    display: inline-flex; align-items: center; flex: none;
+    padding: 1px 8px;
+    border: 1px solid #C9A84C; border-radius: 999px;
+    font-family: 'Cinzel', Georgia, serif; font-size: 8px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: #C9A84C;
+  }
   .invoice .inv-issuer { font-family: 'Cinzel', Georgia, serif; font-size: 12px; letter-spacing: 0.08em; color: #0a0908; }
   .invoice .inv-issuer-sub { font-size: 11px; color: #6f665c; margin-top: 6px; line-height: 1.7; }
   .invoice .inv-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 11px; }
@@ -947,7 +956,7 @@
               <div class="inv-eyebrow">Facturé à</div>
               <div class="inv-fields">
                 <div><span class="inv-flabel">Nom du client</span><div class="inv-fvalue" id="invClient">Fifi</div></div>
-                <div><span class="inv-flabel">Niveau de fidélité</span><div class="inv-fvalue" id="invFidNiveau">En progression — 6 bouteilles cumulées en 2026</div></div>
+                <div><span class="inv-flabel">Niveau de fidélité</span><div class="inv-fvalue inv-fvalue--niveau"><span id="invFidNiveau">En progression — 6 bouteilles cumulées en 2026</span><span class="inv-tier-badge" id="invTierBadge" hidden></span></div></div>
                 <div><span class="inv-flabel">Date</span><div class="inv-fvalue" id="invDateLong">03 septembre 2026</div></div>
               </div>
             </div>
@@ -1529,6 +1538,19 @@
     var palier = palierActuel(btl), an = anneeDoc();
     var palierNomme = rem > 0 && palier.remise > 0 && fRemiseType.value === 'pct' && pct === palier.remise;
 
+    // Badge de palier à côté du niveau de fidélité, teinté par palier —
+    // seulement à partir du cercle Or (pas de badge pour "En progression").
+    var invBadge = $('invTierBadge');
+    if (palier.remise > 0) {
+      var invTierCol = (CARTE_STYLE[palier.nom] || {}).base || '#C9A84C';
+      invBadge.textContent = palier.nom;
+      invBadge.style.borderColor = invTierCol;
+      invBadge.style.color = invTierCol;
+      invBadge.hidden = false;
+    } else {
+      invBadge.hidden = true;
+    }
+
     $('invSousTotal').textContent = st ? formatFCFA(st) + ' F' : '—';
     $('invRemiseLabel').textContent = rem > 0
       ? (palierNomme ? 'Remise ' + palier.nom : 'Remise') + (fRemiseType.value === 'pct' ? ' (' + pct + ' %)' : '')
@@ -1587,7 +1609,10 @@
     var palier = palierActuel(btl);
     var badge = $('outClientBadge');
     if (palier.remise > 0) {
+      var outTierCol = (CARTE_STYLE[palier.nom] || {}).base || '#C9A84C';
       badge.textContent = 'Cercle ' + palier.nom;
+      badge.style.borderColor = outTierCol;
+      badge.style.color = outTierCol;
       badge.hidden = false;
       $('outLoyaltyTitle').textContent = 'Fidélité · Cercle ' + palier.nom;
     } else {

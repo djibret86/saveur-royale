@@ -94,7 +94,13 @@ répéter à chaque mention l'affaiblit. Le ® est en or `#C9A84C`, en exposant,
 
 **Couleurs — deux règles distinctes selon le support :**
 - **Documents commerciaux** (facture, reçu) : uniquement l'or, le noir et le
-  blanc/crème.
+  blanc/crème — **à une exception près** (validée par Djibret le 14.09.2026) :
+  le petit badge de palier (« Cercle Rubis », « Diamant »…) affiché à côté du
+  nom du client sur le reçu, et à côté de « Niveau de fidélité » sur la
+  facture, prend la couleur du palier concerné (mêmes couleurs que la carte de
+  fidélité, ci-dessous). Il n'apparaît qu'à partir du cercle Or (pas de badge
+  pour « En progression »). Le reste du document — bordures, encarts, titres —
+  reste strictement or/noir/crème ; seul ce badge ponctuel change.
 - **Cartes de fidélité** : ce sont des objets de marque, pas des documents.
   Chaque palier a sa couleur — Or `#C9A84C`, Rubis `#E8365F`, Diamant `#38BDF8`,
   Platinum `#DCE3EC` — sur fond noir. C'est un choix validé par Djibret, à ne pas
