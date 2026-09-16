@@ -17,6 +17,19 @@ la mise en page officielle, calcule les totaux et la remise du palier, et permet
 d'enregistrer en PNG (reçu, pour WhatsApp) ou en PDF (facture).
 Source : `project/generateur-recus-factures.html`.
 
+> ⚠️ **Modifier le fichier source ne suffit pas.** Djibret utilise l'artifact
+> publié, pas le dépôt : tant qu'on n'a pas **republié** (outil Artifact, en
+> passant l'URL ci-dessus en paramètre `url`), il ne voit aucun changement.
+> Erreur déjà commise — deux allers-retours perdus. Commit **et** republication,
+> systématiquement. Le fichier du dépôt contient l'enveloppe `<!doctype html>…
+> <body>` d'un ancien téléchargement : la retirer avant de publier, sinon la
+> page est emboîtée deux fois.
+
+> **Aucune bibliothèque externe.** html2canvas (image) et jsPDF (PDF) sont
+> **embarqués dans la page**, plus chargés depuis cdnjs : sur le mobile de
+> Djibret le CDN échouait et « Générer » répondait « la génération n'a pas pu se
+> charger ». Ne pas « alléger » la page en les remettant en lien externe.
+
 Quand Djibret demande une facture ou un reçu, on peut soit le renvoyer vers
 l'outil, soit générer le document directement — les règles ci-dessous
 s'appliquent dans les deux cas.
