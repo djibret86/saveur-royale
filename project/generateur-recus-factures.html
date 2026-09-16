@@ -1125,6 +1125,7 @@
     <div class="export-result" id="exportResult" hidden>
       <img id="exportImg" alt="Document généré, prêt à enregistrer">
       <div class="export-actions">
+        <button type="button" class="btn-gold" id="btnShare" hidden>Partager (WhatsApp…)</button>
         <button type="button" class="btn-gold" id="btnSave" hidden>Enregistrer l'image</button>
         <button type="button" class="btn-outline" id="btnPdf" hidden>Enregistrer en PDF</button>
         <button type="button" class="btn-outline" id="btnCopy">Copier l'image</button>
@@ -2510,12 +2511,40 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   // ---- Export ----
   var btnGenerate = $('btnGenerate'), exportResult = $('exportResult'), exportImg = $('exportImg'),
     captureHost = $('captureHost'), btnSave = $('btnSave'), btnPdf = $('btnPdf'),
-    btnCopy = $('btnCopy'), saveNote = $('saveNote');
+    btnCopy = $('btnCopy'), btnShare = $('btnShare'), saveNote = $('saveNote');
 
   var lastBlob = null, lastObjectUrl = null, lastCanvas = null, lastType = null, downloadsApi = null;
 
   var NOTE_SAVE = "Enregistre le document sur ton téléphone ou ton ordinateur, puis envoie-le.";
   var NOTE_COPY = "Copie l'image, puis colle-la directement dans la conversation WhatsApp.";
+  var NOTE_SHARE = "Appuie sur « Partager » pour l'envoyer directement dans WhatsApp.";
+
+  // Sur téléphone la copie d'image est souvent refusée (page embarquée), et le
+  // « clic droit » n'existe pas : le geste qui marche toujours est l'appui long
+  // sur l'image. Le partage natif, lui, ouvre WhatsApp directement.
+  var shareAvailable = false;
+  function isTouchDevice() {
+    return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  }
+  function manualImageHint() {
+    return isTouchDevice()
+      ? "Appuie longuement sur l'image ci-dessus, puis choisis « Partager » ou « Télécharger »."
+      : "Fais un clic droit sur l'image → Copier l'image.";
+  }
+  function exportFile() {
+    if (!lastBlob) return null;
+    try { return new File([lastBlob], safeFileName('png'), { type: 'image/png' }); }
+    catch (e) { return null; }
+  }
+  function canShareExport() {
+    var f = exportFile();
+    if (!f || !navigator.share || !navigator.canShare) return false;
+    try { return navigator.canShare({ files: [f] }); } catch (e) { return false; }
+  }
+  function defaultExportNote() {
+    if (shareAvailable) return NOTE_SHARE;
+    return downloadsApi ? NOTE_SAVE : NOTE_COPY;
+  }
 
   function pdfReady() { return !!(window.jspdf && window.jspdf.jsPDF); }
 
@@ -2530,6 +2559,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     lastBlob = null; lastCanvas = null;
     if (lastObjectUrl) { URL.revokeObjectURL(lastObjectUrl); lastObjectUrl = null; }
     btnPdf.hidden = true;
+    btnShare.hidden = true;
+    shareAvailable = false;
   }
 
   // The save capability arrives asynchronously and may never arrive at all —
@@ -2540,7 +2571,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         if (!api) return;
         downloadsApi = api;
         btnSave.hidden = false;
-        if (!exportResult.hidden) setNote(NOTE_SAVE, false);
+        if (!exportResult.hidden) setNote(defaultExportNote(), false);
       }).catch(function () { /* unavailable — copy stays the path */ });
     } catch (e) { /* older host — copy stays the path */ }
   }
@@ -3109,7 +3140,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         exportImg.src = lastObjectUrl;
         exportResult.hidden = false;
         btnPdf.hidden = !(lastType === 'facture' && pdfReady());
-        setNote(downloadsApi ? NOTE_SAVE : NOTE_COPY, false);
+        shareAvailable = canShareExport();
+        btnShare.hidden = !shareAvailable;
+        setNote(defaultExportNote(), false);
         exportResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
         var montantNetFinal = lastType === 'facture' ? Math.max(0, sousTotal() - remiseAmount())
           : (lastType === 'carte' ? 0 : Number(fMontant.value) || 0);
@@ -3138,7 +3171,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       setNote('Un enregistrement est déjà en cours. Patiente un instant, puis réessaie.', true);
     } else if (code === 'unavailable' || code === 'not_granted' || code === 'capability_disabled' || code === 'capability_removed') {
       btnSave.hidden = true; btnPdf.hidden = true; downloadsApi = null;
-      setNote(NOTE_COPY, false);
+      setNote(defaultExportNote(), false);
     } else {
       setNote("L'enregistrement a échoué. Utilise « Copier l'image » et colle-la dans WhatsApp.", true);
     }
@@ -3155,7 +3188,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   btnPdf.addEventListener('click', function () {
     if (!lastCanvas || !pdfReady()) return;
-    if (!downloadsApi) { setNote("L'enregistrement de fichier n'est pas disponible ici. Utilise « Copier l'image ».", true); return; }
+    if (!downloadsApi) { setNote("L'enregistrement de fichier n'est pas disponible ici. " + manualImageHint(), true); return; }
     btnPdf.disabled = true;
     try {
       var doc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -3170,15 +3203,34 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     }
   });
 
+  // Partage natif : sur téléphone, ouvre directement le sélecteur d'application
+  // (WhatsApp compris) avec l'image en pièce jointe.
+  btnShare.addEventListener('click', function () {
+    var file = exportFile();
+    if (!file) return;
+    btnShare.disabled = true;
+    Promise.resolve()
+      .then(function () { return navigator.share({ files: [file] }); })
+      .then(function () { setNote('Document partagé.', false); })
+      .catch(function (err) {
+        // Fermer le sélecteur de partage n'est pas une erreur à signaler.
+        if (err && err.name === 'AbortError') return;
+        shareAvailable = false;
+        btnShare.hidden = true;
+        setNote('Le partage direct a été refusé. ' + manualImageHint(), true);
+      })
+      .then(function () { btnShare.disabled = false; });
+  });
+
   btnCopy.addEventListener('click', function () {
     if (!lastBlob) return;
     if (!(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write)) {
-      setNote("Ton navigateur ne permet pas la copie automatique. Fais un clic droit sur l'image → Copier l'image.", true);
+      setNote('Ton navigateur ne permet pas la copie automatique. ' + manualImageHint(), true);
       return;
     }
     navigator.clipboard.write([new ClipboardItem({ 'image/png': lastBlob })])
-      .then(function () { setNote('Image copiée. Colle-la dans la conversation WhatsApp (Ctrl+V).', false); })
-      .catch(function () { setNote("La copie automatique a été refusée. Fais un clic droit sur l'image → Copier l'image.", true); });
+      .then(function () { setNote('Image copiée. Colle-la dans la conversation WhatsApp.', false); })
+      .catch(function () { setNote('La copie automatique a été refusée. ' + manualImageHint(), true); });
   });
 
   // ---- Start (runs last: every element and handler above is wired by now) ----
