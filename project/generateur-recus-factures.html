@@ -701,15 +701,42 @@
     <!-- ============ REÇU ============ -->
     <div id="paneRecu">
       <fieldset>
+        <legend>Saveurs vendues</legend>
+        <div class="lines-head">
+          <span>Désignation</span><span>Qté</span><span>Prix unit.</span><span></span>
+        </div>
+        <div id="recuLinesList"></div>
+        <div class="lines-foot">
+          <button type="button" class="btn-add" id="btnAddRecuLine">+ Ajouter une ligne</button>
+          <span class="lines-total">Sous-total <strong id="recuLinesSubtotal">0 F</strong></span>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label for="fRecuRemise">Remise</label>
+            <input type="number" id="fRecuRemise" min="0" step="1" value="0">
+          </div>
+          <div class="field">
+            <label for="fRecuRemiseType">Type</label>
+            <select id="fRecuRemiseType">
+              <option value="pct">%</option>
+              <option value="montant">Montant (F)</option>
+            </select>
+          </div>
+        </div>
+        <span class="sub" id="recuRemiseReadout"></span>
+      </fieldset>
+
+      <fieldset>
         <legend>Paiement</legend>
         <div class="field">
           <label for="fMotif">Saveur(s)</label>
           <input type="text" id="fMotif" value="Liqueur Passion — 1 bouteille · Facture SR-2026-FIF-04">
-          <span class="sub">Ce qui a été acheté, et la facture liée si besoin.</span>
+          <span class="sub">Se remplit automatiquement depuis les saveurs ci-dessus — modifiable si besoin.</span>
         </div>
         <div class="field">
           <label for="fMontant">Montant reçu (FCFA)</label>
           <input type="number" id="fMontant" min="0" step="1" value="7000">
+          <span class="sub">Se remplit automatiquement depuis les saveurs et la remise — modifiable si besoin.</span>
         </div>
         <div class="field">
           <label for="fLettres">Somme en lettres</label>
@@ -1314,7 +1341,8 @@
     fMode = $('fMode'), fModeAutre = $('fModeAutre'), fModeAutreWrap = $('fModeAutreWrap'), fReste = $('fReste'),
     fFideliteOn = $('fFideliteOn'), fFidelite = $('fFidelite'), fBouteilles = $('fBouteilles'),
     fRemise = $('fRemise'), fRemiseType = $('fRemiseType'), fNote = $('fNote'), fBanque = $('fBanque'),
-    fTypeClient = $('fTypeClient'), fPaiementStatut = $('fPaiementStatut');
+    fTypeClient = $('fTypeClient'), fPaiementStatut = $('fPaiementStatut'),
+    fRecuRemise = $('fRecuRemise'), fRecuRemiseType = $('fRecuRemiseType');
 
   var receiptEl = $('receipt'), invoiceEl = $('invoice'), carteEl = $('carte'),
     previewFrame = $('previewFrame'), previewScaler = $('previewScaler');
@@ -1324,6 +1352,9 @@
   var lettresManual = false;
   var clientCodeManual = false;
   var lines = [{ designation: 'Passion', qte: 1, pu: 7000 }];
+  var recuLines = [{ designation: 'Passion', qte: 1, pu: 7000 }];
+  var motifManual = false;
+  var montantManual = false;
 
   // ---- Code client : suggéré depuis le nom (titre ignoré), toujours modifiable ----
   var TITRES_CLIENT = [
@@ -1493,6 +1524,93 @@
     $('linesNote').textContent = lines.length >= MAX_LINES
       ? 'Maximum atteint : le modèle A4 accueille 10 lignes.'
       : 'Le modèle A4 accueille 10 lignes maximum.';
+  }
+
+  // ---- Saveurs vendues (reçu) : même mécanique que les lignes facturées —
+  // désignation avec prix officiel auto-rempli, remise optionnelle. Le motif
+  // et le montant du reçu se recalculent tant qu'ils n'ont pas été tapés à
+  // la main (mêmes flags "manuel" que pour la somme en lettres / le prix).
+  function recuSousTotal() {
+    return recuLines.reduce(function (sum, l) { return sum + lineTotal(l); }, 0);
+  }
+  function recuRemiseAmount() {
+    var v = Number(fRecuRemise.value) || 0;
+    if (v <= 0) return 0;
+    return fRecuRemiseType.value === 'pct' ? Math.round(recuSousTotal() * v / 100) : Math.round(v);
+  }
+  function motifFromRecuLines() {
+    return recuLines
+      .filter(function (l) { return String(l.designation).trim() !== ''; })
+      .map(function (l) {
+        var qte = Number(l.qte) || 0;
+        return l.designation + ' — ' + qte + ' bouteille' + (qte > 1 ? 's' : '');
+      })
+      .join(' · ');
+  }
+
+  function renderRecuLinesEditor() {
+    var list = $('recuLinesList');
+    list.textContent = '';
+    recuLines.forEach(function (l, i) {
+      var row = document.createElement('div');
+      row.className = 'line-row';
+
+      var d = document.createElement('input');
+      d.type = 'text'; d.value = l.designation; d.placeholder = 'Désignation';
+      d.setAttribute('list', 'produits');
+      d.setAttribute('aria-label', 'Désignation ligne ' + (i + 1));
+      d.addEventListener('input', function () {
+        recuLines[i].designation = d.value;
+        var prix = prixProduit(d.value);
+        if (prix && !recuLines[i].puManual) {
+          recuLines[i].pu = prix;
+          p.value = prix;
+          if (!Number(recuLines[i].qte)) { recuLines[i].qte = 1; q.value = 1; }
+        }
+        updateRecuFromLines();
+      });
+
+      var q = document.createElement('input');
+      q.type = 'number'; q.min = '0'; q.step = '1'; q.value = l.qte;
+      q.setAttribute('aria-label', 'Quantité ligne ' + (i + 1));
+      q.addEventListener('input', function () { recuLines[i].qte = q.value; updateRecuFromLines(); });
+
+      var p = document.createElement('input');
+      p.type = 'number'; p.min = '0'; p.step = '1'; p.value = l.pu;
+      p.setAttribute('aria-label', 'Prix unitaire ligne ' + (i + 1));
+      p.addEventListener('input', function () {
+        recuLines[i].pu = p.value;
+        recuLines[i].puManual = Number(p.value) > 0;
+        updateRecuFromLines();
+      });
+
+      var del = document.createElement('button');
+      del.type = 'button'; del.className = 'line-del'; del.textContent = '×';
+      del.title = 'Supprimer la ligne';
+      del.setAttribute('aria-label', 'Supprimer la ligne ' + (i + 1));
+      del.addEventListener('click', function () {
+        recuLines.splice(i, 1);
+        if (recuLines.length === 0) recuLines.push({ designation: '', qte: '', pu: '' });
+        renderRecuLinesEditor(); updateRecuFromLines();
+      });
+
+      row.appendChild(d); row.appendChild(q); row.appendChild(p); row.appendChild(del);
+      list.appendChild(row);
+    });
+  }
+
+  function updateRecuFromLines() {
+    var st = recuSousTotal(), rem = recuRemiseAmount(), net = Math.max(0, st - rem);
+    $('recuLinesSubtotal').textContent = formatFCFA(st) + ' F';
+    var readout = $('recuRemiseReadout');
+    readout.textContent = rem > 0
+      ? ('Remise ' + (fRecuRemiseType.value === 'pct' ? (Number(fRecuRemise.value) || 0) + ' %' : formatFCFA(rem) + ' F')
+        + ' → montant reçu ' + formatFCFA(net) + ' F.')
+      : '';
+    if (!motifManual) fMotif.value = motifFromRecuLines();
+    if (!montantManual) fMontant.value = net;
+    syncLettres();
+    saveDraft();
   }
 
   function renderInvoiceTable() {
@@ -1830,6 +1948,17 @@
   fLettres.addEventListener('input', function () { lettresManual = true; render(); });
   $('btnResyncLettres').addEventListener('click', function () { lettresManual = false; syncLettres(); saveDraft(); });
 
+  // Un vrai tapotement à la main (pas un remplissage programmatique) fige le
+  // champ : la reprise depuis les saveurs vendues ne l'écrase plus ensuite.
+  fMotif.addEventListener('input', function () { motifManual = true; saveDraft(); });
+  fMontant.addEventListener('input', function () { montantManual = true; });
+  $('btnAddRecuLine').addEventListener('click', function () {
+    recuLines.push({ designation: '', qte: 1, pu: 0 });
+    renderRecuLinesEditor(); updateRecuFromLines();
+  });
+  fRecuRemise.addEventListener('input', updateRecuFromLines);
+  fRecuRemiseType.addEventListener('change', updateRecuFromLines);
+
   fMode.addEventListener('change', function () {
     fModeAutreWrap.hidden = fMode.value !== '__autre';
     render();
@@ -1858,7 +1987,9 @@
     fPaiementStatut.value = 'attente';
     fFidNiveau.value = '';
     fMotif.value = '';
+    motifManual = false;
     fMontant.value = '';
+    montantManual = false;
     fLettres.value = '';
     lettresManual = false;
     fMode.value = 'Mobile Money';
@@ -1871,9 +2002,14 @@
     lines = [{ designation: '', qte: '', pu: '' }];
     fRemise.value = 0;
     fRemiseType.value = 'pct';
+    recuLines = [{ designation: '', qte: '', pu: '' }];
+    fRecuRemise.value = 0;
+    fRecuRemiseType.value = 'pct';
     fNote.value = '';
     fBanque.value = '';
     renderLinesEditor();
+    renderRecuLinesEditor();
+    updateRecuFromLines();
     hideExport();
     render();
     saveDraft();
@@ -1892,11 +2028,13 @@
         docType: docType, numero: fNumero.value, date: fDate.value, client: fClient.value,
         clientCode: fClientCode.value, clientCodeManual: clientCodeManual, typeClient: fTypeClient.value,
         paiementStatut: fPaiementStatut.value,
-        fidNiveau: fFidNiveau.value, motif: fMotif.value, montant: fMontant.value,
+        fidNiveau: fFidNiveau.value, motif: fMotif.value, motifManual: motifManual,
+        montant: fMontant.value, montantManual: montantManual,
         lettres: fLettres.value, lettresManual: lettresManual, mode: fMode.value,
         modeAutre: fModeAutre.value, reste: fReste.value, fideliteOn: fFideliteOn.checked,
         fidelite: fFidelite.value, bouteilles: fBouteilles.value, lines: lines, remise: fRemise.value,
         remiseType: fRemiseType.value, note: fNote.value, banque: fBanque.value,
+        recuLines: recuLines, recuRemise: fRecuRemise.value, recuRemiseType: fRecuRemiseType.value,
         carteProgression: fCarteProgression.checked, carteDepuis: fCarteDepuis.value
       }));
     } catch (e) { /* storage unavailable — ignore */ }
@@ -1915,7 +2053,9 @@
       fPaiementStatut.value = d.paiementStatut || 'attente';
       fFidNiveau.value = d.fidNiveau || '';
       fMotif.value = d.motif || '';
+      motifManual = !!d.motifManual;
       fMontant.value = d.montant || '';
+      montantManual = !!d.montantManual;
       fLettres.value = d.lettres || '';
       lettresManual = !!d.lettresManual;
       fMode.value = d.mode || 'Mobile Money';
@@ -1928,6 +2068,9 @@
       if (Array.isArray(d.lines) && d.lines.length) lines = d.lines.slice(0, MAX_LINES);
       fRemise.value = (d.remise !== undefined ? d.remise : 0);
       fRemiseType.value = d.remiseType || 'pct';
+      if (Array.isArray(d.recuLines) && d.recuLines.length) recuLines = d.recuLines;
+      fRecuRemise.value = (d.recuRemise !== undefined ? d.recuRemise : 0);
+      fRecuRemiseType.value = d.recuRemiseType || 'pct';
       fNote.value = d.note || '';
       fBanque.value = d.banque || '';
       fCarteProgression.checked = d.carteProgression !== undefined ? d.carteProgression : true;
@@ -2065,6 +2208,9 @@
     } else {
       body.motif = fMotif.value || '';
       body.mode = currentMode();
+      body.recuLines = recuLines.slice(0, MAX_LINES);
+      body.recuRemise = Number(fRecuRemise.value) || 0;
+      body.recuRemiseType = fRecuRemiseType.value;
     }
     dbApi.collection('documents').doc(id).set(body)
       .then(function () {
@@ -2188,8 +2334,25 @@
       // Le nom et le cumul suffisent ; la date d'adhésion, elle, se conserve.
       fCarteDepuis.value = doc.depuis || '';
     } else {
-      fMotif.value = doc.motif || '';
-      fMontant.value = '';
+      if (Array.isArray(doc.recuLines) && doc.recuLines.length) {
+        recuLines = doc.recuLines.map(function (l) { return { designation: l.designation, qte: l.qte, pu: l.pu, puManual: true }; });
+        motifManual = false;
+        montantManual = false;
+        fRecuRemise.value = doc.recuRemise || 0;
+        fRecuRemiseType.value = doc.recuRemiseType || 'pct';
+      } else {
+        // Anciens reçus enregistrés avant l'ajout des lignes détaillées :
+        // pas de saveurs à restaurer, on garde le motif tel quel.
+        recuLines = [{ designation: '', qte: '', pu: '' }];
+        fMotif.value = doc.motif || '';
+        motifManual = true;
+        fMontant.value = '';
+        montantManual = false;
+        fRecuRemise.value = 0;
+        fRecuRemiseType.value = 'pct';
+      }
+      renderRecuLinesEditor();
+      updateRecuFromLines();
       lettresManual = false;
       fReste.value = 0;
       if (doc.mode && ['Mobile Money', 'Espèces', 'Virement bancaire', 'Chèque'].indexOf(doc.mode) !== -1) {
@@ -2229,8 +2392,17 @@
       .filter(function (l) { return l.designation && Number(l.qte) > 0; })
       .map(function (l) { return l.designation + ' × ' + l.qte; })
       .join(', ');
+    // Motif et montant repris tels quels (avec la référence facture, et le net
+    // après une éventuelle remise) plutôt que recalculés depuis les lignes —
+    // marqués "manuel" pour que l'éditeur de saveurs ci-dessous ne les écrase pas.
+    recuLines = (Array.isArray(factureDoc.lines) && factureDoc.lines.length)
+      ? factureDoc.lines.map(function (l) { return { designation: l.designation, qte: l.qte, pu: l.pu, puManual: true }; })
+      : [{ designation: '', qte: '', pu: '' }];
+    renderRecuLinesEditor();
     fMotif.value = (lignesTxt || 'Voir facture') + ' · Facture ' + (factureDoc.numero || '');
+    motifManual = true;
     fMontant.value = factureDoc.montantNet || 0;
+    montantManual = true;
     lettresManual = false;
     fReste.value = 0;
     fMode.value = 'Mobile Money'; fModeAutreWrap.hidden = true;
@@ -2590,6 +2762,8 @@
   // ---- Start (runs last: every element and handler above is wired by now) ----
   if (!loadDraft()) fDate.value = todayISO();
   renderLinesEditor();
+  renderRecuLinesEditor();
+  updateRecuFromLines();
   setDocType(docType);
 })();
 </script>
