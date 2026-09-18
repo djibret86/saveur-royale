@@ -2515,7 +2515,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   var lastBlob = null, lastObjectUrl = null, lastCanvas = null, lastType = null, downloadsApi = null;
 
-  var NOTE_SAVE = "Enregistre le document sur ton téléphone ou ton ordinateur, puis envoie-le.";
+  var NOTE_SAVE = "Appuie sur « Enregistrer l'image », puis joins-la à ta conversation WhatsApp depuis ta galerie.";
   var NOTE_COPY = "Copie l'image, puis colle-la directement dans la conversation WhatsApp.";
   var NOTE_SHARE = "Appuie sur « Partager » pour l'envoyer directement dans WhatsApp.";
 
@@ -2523,6 +2523,11 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   // « clic droit » n'existe pas : le geste qui marche toujours est l'appui long
   // sur l'image. Le partage natif, lui, ouvre WhatsApp directement.
   var shareAvailable = false;
+  // Dans l'application Claude sur téléphone, la copie d'image est refusée par
+  // le navigateur embarqué : inutile d'afficher un bouton qui ne peut pas
+  // marcher là où « Enregistrer l'image » fonctionne. Sur ordinateur la copie
+  // reste pratique, on la garde.
+  var copyBlocked = false;
   function isTouchDevice() {
     return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
   }
@@ -3142,6 +3147,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         btnPdf.hidden = !(lastType === 'facture' && pdfReady());
         shareAvailable = canShareExport();
         btnShare.hidden = !shareAvailable;
+        btnCopy.hidden = copyBlocked || (!!downloadsApi && isTouchDevice());
         setNote(defaultExportNote(), false);
         exportResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
         var montantNetFinal = lastType === 'facture' ? Math.max(0, sousTotal() - remiseAmount())
@@ -3181,7 +3187,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     if (!downloadsApi || !lastBlob) return;
     btnSave.disabled = true;
     downloadsApi.save({ filename: safeFileName('png'), data: lastBlob })
-      .then(function () { setNote('Image enregistrée. Tu peux maintenant l’envoyer.', false); })
+      .then(function () { setNote('Image enregistrée. Ouvre WhatsApp et joins-la depuis ta galerie.', false); })
       .catch(function (err) { handleSaveError(err, NOTE_SAVE); })
       .then(function () { btnSave.disabled = false; });
   });
@@ -3230,7 +3236,15 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     }
     navigator.clipboard.write([new ClipboardItem({ 'image/png': lastBlob })])
       .then(function () { setNote('Image copiée. Colle-la dans la conversation WhatsApp.', false); })
-      .catch(function () { setNote('La copie automatique a été refusée. ' + manualImageHint(), true); });
+      .catch(function () {
+        // Refus définitif sur cet appareil : on retire le bouton plutôt que de
+        // le laisser échouer une seconde fois.
+        copyBlocked = true;
+        btnCopy.hidden = true;
+        setNote(downloadsApi
+          ? 'La copie n’est pas autorisée sur cet appareil. Utilise « Enregistrer l’image », puis joins-la depuis ta galerie.'
+          : 'La copie n’est pas autorisée sur cet appareil. ' + manualImageHint(), true);
+      });
   });
 
   // ---- Start (runs last: every element and handler above is wired by now) ----

@@ -30,6 +30,16 @@ Source : `project/generateur-recus-factures.html`.
 > Djibret le CDN échouait et « Générer » répondait « la génération n'a pas pu se
 > charger ». Ne pas « alléger » la page en les remettant en lien externe.
 
+> **Envoi du document — ce qui marche vraiment chez Djibret** (constaté sur son
+> téléphone, application Claude) : **« Enregistrer l'image » fonctionne**, puis
+> il joint le fichier dans WhatsApp depuis sa galerie. En revanche la **copie
+> d'image est refusée** par le navigateur embarqué, et le **partage natif
+> n'est pas proposé** — ce sont des restrictions de l'application, pas des bugs
+> à corriger dans le code. Le bouton « Copier » est donc masqué sur écran
+> tactile quand l'enregistrement est disponible, et disparaît définitivement
+> après un refus. Ne pas le remettre en avant « pour dépanner » : il ne peut
+> pas marcher là.
+
 Quand Djibret demande une facture ou un reçu, on peut soit le renvoyer vers
 l'outil, soit générer le document directement — les règles ci-dessous
 s'appliquent dans les deux cas.
