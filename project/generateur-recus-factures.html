@@ -205,6 +205,28 @@
     line-height: 1.45;
   }
 
+  .registre-info {
+    margin: -6px 0 14px;
+    font-size: 12.5px; font-weight: 700; color: var(--gold-deep);
+    background: var(--cream-card);
+    border: 1px solid var(--line-gold);
+    border-radius: 7px;
+    padding: 8px 11px;
+    line-height: 1.45;
+  }
+  .avantages-list { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; }
+  .avantages-list li {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--ink);
+    background: #fff; border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px;
+  }
+  .avantages-list li .av-date { color: var(--muted-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .avantages-list li .av-lib { flex: 1; min-width: 0; }
+  .avantages-list li .av-src { font-size: 11px; color: var(--muted-soft); }
+  .avantages-list li.vide { color: var(--muted-soft); background: none; border-style: dashed; }
+  .avantage-add { display: grid; grid-template-columns: 140px 1fr auto; gap: 8px; align-items: center; }
+  @media (max-width: 480px) { .avantage-add { grid-template-columns: 1fr; } }
+
   .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .checkbox-row input { width: auto; }
   .checkbox-row label { margin: 0; font-size: 13px; font-weight: 700; color: var(--ink); }
@@ -674,7 +696,8 @@
       <div class="row-2">
         <div class="field">
           <label for="fClient">Nom du client</label>
-          <input type="text" id="fClient" value="Fifi">
+          <input type="text" id="fClient" value="Fifi" list="clientsList" autocomplete="off">
+          <datalist id="clientsList"></datalist>
         </div>
         <div class="field">
           <label for="fClientCode">Code client</label>
@@ -683,6 +706,7 @@
         </div>
       </div>
       <p class="dup-warning" id="dupWarning" hidden></p>
+      <p class="registre-info" id="registreInfo" hidden></p>
       <div class="field">
         <label for="fBouteilles">Bouteilles cumulées en <span id="tierYear">2026</span></label>
         <div class="field-with-action">
@@ -691,6 +715,23 @@
         </div>
         <div class="tier-readout" id="tierReadout"></div>
         <span class="sub">Chiffre à reprendre du fichier de gestion — « Appliquer » remplit le niveau, la remise et le message.</span>
+      </div>
+      <div class="field" id="wrapAvantages" hidden>
+        <label for="fAvLibelle">Avantages déjà reçus</label>
+        <ul class="avantages-list" id="avantagesList"></ul>
+        <div class="avantage-add">
+          <input type="date" id="fAvDate" aria-label="Date de l'avantage">
+          <input type="text" id="fAvLibelle" list="avantagesTypes" placeholder="Ex. Bouteille offerte — Corossol">
+          <button type="button" class="btn-add" id="btnAddAvantage">Ajouter</button>
+        </div>
+        <datalist id="avantagesTypes">
+          <option value="Bouteille offerte — "></option>
+          <option value="Livraison offerte"></option>
+          <option value="Emballage offert"></option>
+          <option value="Places événement"></option>
+          <option value="Cuvée en avant-première"></option>
+        </datalist>
+        <span class="sub">Enregistré pour ce client sur tous tes appareils, et repris dans le message fidélité de ses prochains documents.</span>
       </div>
       <div class="field" id="wrapFidNiveau" hidden>
         <label for="fFidNiveau">Niveau de fidélité</label>
@@ -1840,16 +1881,33 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     $('tierReadout').textContent = txt;
   }
 
+  // Avantages validés par Djibret (CLAUDE.md), rédigés pour le message du reçu.
+  var AVANTAGES_TEXTE = {
+    'Or':       ['remise permanente de 5\u00a0%', 'alertes avant-première', 'emballage offert'],
+    'Rubis':    ['remise permanente de 8\u00a0%', '1 bouteille offerte', 'livraison offerte dès 3 bouteilles', 'accès prioritaire au stock'],
+    'Diamant':  ['remise permanente de 12\u00a0%', '1 bouteille offerte', 'livraison offerte systématique', '2 places pour nos événements'],
+    'Platinum': ['remise permanente de 15\u00a0%', '2 bouteilles offertes', 'livraison offerte systématique', '4 places pour nos événements', 'cuvées en avant-première']
+  };
+  function phraseDejaRecu() {
+    var an = anneeDoc();
+    var av = avantagesClient().filter(function (a) { return !a.date || String(a.date).slice(0, 4) === an; });
+    if (!av.length) return '';
+    return ' Déjà reçu : ' + av.map(function (a) {
+      var lib = a.libelle.charAt(0).toLowerCase() + a.libelle.slice(1);
+      return lib + (a.date ? ' (' + formatDateLong(a.date) + ')' : '');
+    }).join(', ') + '.';
+  }
   function messageFidelite(btl) {
     var p = palierActuel(btl), suivant = palierSuivant(btl), an = anneeDoc();
-    var base = btl + ' bouteille' + (btl > 1 ? 's' : '') + ' cumulée' + (btl > 1 ? 's' : '') + ' en ' + an + '.';
-    if (suivant) {
-      var reste = suivant.seuil - btl;
-      return base + ' Plus que ' + reste + ' bouteille' + (reste > 1 ? 's' : '') +
-        ' pour rejoindre le cercle ' + suivant.nom +
-        ' et bénéficier de la remise permanente de ' + suivant.remise + ' %.';
+    var base = btl + ' bouteille' + (btl > 1 ? 's' : '') + ' cumulée' + (btl > 1 ? 's' : '') + ' en ' + an;
+    var reste = suivant ? suivant.seuil - btl : 0;
+    var plusQue = suivant ? ' Plus que ' + reste + ' bouteille' + (reste > 1 ? 's' : '') +
+      ' pour rejoindre le cercle ' + suivant.nom : '';
+    if (p.remise > 0) {
+      return base + ' — Cercle ' + p.nom + '. Vos avantages : ' + AVANTAGES_TEXTE[p.nom].join(', ') + '.' +
+        phraseDejaRecu() + (suivant ? plusQue + '.' : ' Niveau maximum atteint.');
     }
-    return base + ' Cercle ' + p.nom + ' — remise permanente de ' + p.remise + ' %.';
+    return base + '.' + plusQue + ' et bénéficier de la remise permanente de ' + suivant.remise + '\u00a0%.' + phraseDejaRecu();
   }
 
   // Note de la facture : la phrase « Plus que … » seule (le cumul figure déjà
@@ -2165,6 +2223,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
 
   function render() {
+    if (clientCourant && bouteillesAuto) majCumulClient(false);
     renderTier();
     if (docType === 'facture') renderInvoice();
     else if (docType === 'carte') renderCarte();
@@ -2433,6 +2492,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     renderLinesEditor();
     renderRecuLinesEditor();
     updateRecuFromLines();
+    appliquerClientDepuisNom(false);
     hideExport();
     render();
     saveDraft();
@@ -2600,6 +2660,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         btnSuggestNumero.hidden = false;
         historyToggleRow.hidden = false;
         subscribeHistory();
+        chargerRegistre();
       }).catch(function () { /* indisponible — numérotation et historique manuels */ });
     } catch (e) { /* ancien hôte — numérotation et historique manuels */ }
   }
@@ -2819,6 +2880,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
         fMode.value = '__autre'; fModeAutre.value = doc.mode; fModeAutreWrap.hidden = false;
       }
     }
+    clientCourant = null;
+    appliquerClientDepuisNom(true);
     historyPanel.hidden = true;
     hideExport();
     render();
@@ -2865,6 +2928,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     fReste.value = 0;
     fMode.value = 'Mobile Money'; fModeAutreWrap.hidden = true;
     linkedFactureId = id;
+    clientCourant = null;
+    appliquerClientDepuisNom(true);
     historyPanel.hidden = true;
     hideExport();
     render();
@@ -2875,7 +2940,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   // ---- Alerte de nom proche : même personne enregistrée sous un nom différent ----
   // (vécu avec "Colonel Vei" / "Col Vei Sylvain" et "Mireille Boni" / "Mme Adreille Boni Kong")
   function checkDuplicateClient() {
-    if (!dbApi) { dupWarning.hidden = true; return; }
+    if (!dbApi || trouverClient(fClient.value)) { dupWarning.hidden = true; return; }
     var name = fClient.value.trim();
     var code = (fClientCode.value || '').toUpperCase();
     var words = significantWords(name);
@@ -2902,6 +2967,225 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
   fClient.addEventListener('change', checkDuplicateClient);
   fClientCode.addEventListener('change', checkDuplicateClient);
+
+  // ============================================================
+  //  REGISTRE CLIENTS — reconstruit chaque semaine à partir du fichier de
+  //  gestion (scripts/import_gestion.py, voir CLAUDE.md). Choisir un client
+  //  dans la liste remplit son code, son cumul et son message fidélité ; une
+  //  ancienne orthographe est remplacée par le nom enregistré. Le cumul =
+  //  chiffre du fichier + bouteilles des documents générés après la date
+  //  d'arrêté du fichier + bouteilles du document en cours.
+  // ============================================================
+  var registre = {}, registreParCle = {}, registreMeta = null;
+  var clientCourant = null, bouteillesAuto = false, codeDepuisRegistre = false, cumulClient = null;
+  var registreInfo = $('registreInfo'), wrapAvantages = $('wrapAvantages'), avantagesList = $('avantagesList'),
+    fAvDate = $('fAvDate'), fAvLibelle = $('fAvLibelle'), clientsList = $('clientsList');
+
+  function cleNom(v) {
+    v = String(v || '');
+    if (v.normalize) v = v.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    return v.toUpperCase().trim().replace(/\s+/g, ' ');
+  }
+  function trouverClient(nom) {
+    var code = registreParCle[cleNom(nom)];
+    return code ? registre[code] : null;
+  }
+
+  function chargerRegistre() {
+    dbApi.collection('meta').limit(10).get().then(function (snap) {
+      snap.docs.forEach(function (d) { if (d.id === 'import') registreMeta = d.data(); });
+      if (clientCourant) { majCumulClient(true); render(); }
+    }).catch(function () { /* sans date d'arrêté, seul le chiffre du fichier compte */ });
+    dbApi.collection('clients').limit(1000).onSnapshot(function (snap) {
+      registre = {}; registreParCle = {};
+      var tous = snap.docs.map(function (d) { var c = d.data(); c.code = c.code || d.id; return c; });
+      // Les noms retenus d'abord : une variante ne doit jamais masquer un vrai nom.
+      tous.forEach(function (c) { registre[c.code] = c; registreParCle[cleNom(c.nom)] = c.code; });
+      tous.forEach(function (c) {
+        (c.variantes || []).forEach(function (v) { if (!registreParCle[cleNom(v)]) registreParCle[cleNom(v)] = c.code; });
+      });
+      clientsList.textContent = '';
+      tous.map(function (c) { return c.nom; }).sort(function (a, b) { return a.localeCompare(b, 'fr'); })
+        .forEach(function (nom) { var o = document.createElement('option'); o.value = nom; clientsList.appendChild(o); });
+      if (clientCourant && registre[clientCourant.code]) {
+        clientCourant = registre[clientCourant.code];
+        afficherAvantages();
+      } else if (!clientCourant) {
+        appliquerClientDepuisNom(false);
+      }
+    }, function () { /* registre indisponible — saisie libre comme avant */ });
+  }
+
+  function appliquerClientDepuisNom(activerCumul) {
+    var c = trouverClient(fClient.value);
+    if (!c) {
+      if (clientCourant && codeDepuisRegistre) {
+        clientCodeManual = false;
+        fClientCode.value = suggestClientCode(fClient.value);
+      }
+      clientCourant = null; cumulClient = null; bouteillesAuto = false; codeDepuisRegistre = false;
+      registreInfo.hidden = true; wrapAvantages.hidden = true;
+      return;
+    }
+    var saisi = fClient.value.trim();
+    var harmonise = saisi !== c.nom ? saisi : null;
+    if (harmonise) fClient.value = c.nom;
+    var meme = clientCourant && clientCourant.code === c.code;
+    clientCourant = c;
+    fClientCode.value = c.code; clientCodeManual = true; codeDepuisRegistre = true;
+    dupWarning.hidden = true;
+    afficherAvantages();
+    if (meme) { if (harmonise && cumulClient) cumulClient.harmonise = harmonise; afficherInfoRegistre(); return; }
+    if (activerCumul) bouteillesAuto = true;
+    var an = Number(anneeDoc());
+    cumulClient = { base: Number(c.annee) === an ? (Number(c.bouteilles) || 0) : 0,
+      docs: [], outil: 0, courant: 0, dernierTotal: null, harmonise: harmonise };
+    majCumulClient(true);
+    if (!dbApi) return;
+    dbApi.collection('documents').where('clientCode', '==', c.code).get().then(function (snap) {
+      if (clientCourant !== c || !cumulClient) return;
+      cumulClient.docs = snap.docs.map(function (d) { return d.data(); });
+      majCumulClient(true); render(); saveDraft();
+    }).catch(function () { /* on garde le chiffre du fichier */ });
+  }
+
+  function bouteillesLignes(ls) {
+    return (ls || []).reduce(function (t, l) {
+      return t + (String(l.designation || '').trim() ? (Number(l.qte) || 0) : 0);
+    }, 0);
+  }
+  // Documents enregistrés après la date d'arrêté du fichier : pas encore dans
+  // le cumul du fichier. Un reçu tiré d'une facture ne compte qu'une fois.
+  function cumulDepuisOutil() {
+    var arrete = registreMeta && registreMeta.arreteAu, an = Number(anneeDoc()), cur = (fNumero.value || '').trim();
+    var factures = {}, total = 0;
+    if (!arrete || !cumulClient) return { total: 0, factures: factures };
+    var docs = cumulClient.docs.filter(function (d) {
+      return Number(d.year) === an && String(d.date || '') > arrete && d.numero !== cur && d.type !== 'carte';
+    });
+    docs.forEach(function (d) { if (d.type === 'facture') factures[d.numero] = true; });
+    docs.forEach(function (d) {
+      if (d.type === 'facture') total += bouteillesLignes(d.lines);
+      else if (!factures[String(d.numero || '').replace(/^SR-REC-/, 'SR-')]) total += bouteillesLignes(d.recuLines);
+    });
+    return { total: total, factures: factures };
+  }
+  function bouteillesDocumentCourant(factures) {
+    if (docType === 'facture') return bouteillesLignes(lines);
+    if (docType !== 'recu') return 0;
+    if (linkedFactureId || factures[(fNumero.value || '').replace(/^SR-REC-/, 'SR-')]) return 0;
+    return bouteillesLignes(recuLines);
+  }
+
+  function majCumulClient(force) {
+    if (!clientCourant || !cumulClient) return;
+    var o = cumulDepuisOutil();
+    cumulClient.outil = o.total;
+    cumulClient.courant = bouteillesDocumentCourant(o.factures);
+    var total = cumulClient.base + cumulClient.outil + cumulClient.courant;
+    if (bouteillesAuto && (force || total !== cumulClient.dernierTotal)) {
+      cumulClient.dernierTotal = total;
+      fBouteilles.value = total;
+      var p = palierActuel(total), an = anneeDoc(), pl = total > 1 ? 's' : '';
+      fFidNiveau.value = p.nom + ' — ' + total + ' bouteille' + pl + ' cumulée' + pl + ' en ' + an;
+      fFidelite.value = messageFidelite(total);
+      fNote.value = noteFidelite(total);
+      fFideliteOn.checked = true;
+    }
+    afficherInfoRegistre();
+  }
+
+  function afficherInfoRegistre() {
+    if (!clientCourant || !cumulClient) { registreInfo.hidden = true; return; }
+    var arrete = registreMeta && registreMeta.arreteAu;
+    var t = 'Client enregistré · code ' + clientCourant.code + ' · ' + cumulClient.base + ' btl au fichier' +
+      (arrete ? ' (arrêté au ' + formatDateCourt(arrete) + ')' : '');
+    if (cumulClient.outil) t += ' + ' + cumulClient.outil + ' dans l’outil depuis';
+    if (cumulClient.courant) t += ' + ' + cumulClient.courant + ' sur ce document';
+    t += ' = ' + (cumulClient.base + cumulClient.outil + cumulClient.courant) + ' btl.';
+    if (!bouteillesAuto) t += ' Cumul saisi à la main : re-choisis le client pour le recalculer.';
+    if (cumulClient.harmonise) t = 'Nom harmonisé : « ' + cumulClient.harmonise + ' » → « ' + clientCourant.nom + ' ». ' + t;
+    registreInfo.textContent = t;
+    registreInfo.hidden = false;
+  }
+
+  function avantagesClient() {
+    if (!clientCourant) return [];
+    var vus = {}, out = [];
+    (clientCourant.cadeauxFichier || []).map(function (a) { return { date: a.date, libelle: a.libelle, fichier: true }; })
+      .concat((clientCourant.avantagesRecus || []).map(function (a, i) { return { date: a.date, libelle: a.libelle, index: i }; }))
+      .forEach(function (a) {
+        var k = (a.date || '') + '|' + cleNom(a.libelle);
+        if (!a.libelle || vus[k]) return;
+        vus[k] = true; out.push(a);
+      });
+    return out.sort(function (a, b) { return String(a.date || '').localeCompare(String(b.date || '')); });
+  }
+
+  function afficherAvantages() {
+    if (!clientCourant) { wrapAvantages.hidden = true; return; }
+    wrapAvantages.hidden = false;
+    if (!fAvDate.value) fAvDate.value = todayISO();
+    avantagesList.textContent = '';
+    var av = avantagesClient();
+    if (!av.length) {
+      var vide = document.createElement('li');
+      vide.className = 'vide';
+      vide.textContent = 'Aucun avantage enregistré pour ce client.';
+      avantagesList.appendChild(vide);
+      return;
+    }
+    av.forEach(function (a) {
+      var li = document.createElement('li');
+      var d = document.createElement('span'); d.className = 'av-date'; d.textContent = a.date ? formatDateCourt(a.date) : '—';
+      var l = document.createElement('span'); l.className = 'av-lib'; l.textContent = a.libelle;
+      li.appendChild(d); li.appendChild(l);
+      if (a.fichier) {
+        var src = document.createElement('span'); src.className = 'av-src'; src.textContent = 'fichier';
+        src.title = 'Repéré dans le fichier de gestion (vente à 0 F ou cadeau signalé)';
+        li.appendChild(src);
+      } else {
+        var del = document.createElement('button');
+        del.type = 'button'; del.className = 'line-del'; del.textContent = '×';
+        del.title = 'Retirer cet avantage';
+        del.setAttribute('aria-label', 'Retirer « ' + a.libelle + ' »');
+        del.addEventListener('click', function () {
+          var liste = (clientCourant.avantagesRecus || []).slice();
+          liste.splice(a.index, 1);
+          enregistrerAvantages(liste);
+        });
+        li.appendChild(del);
+      }
+      avantagesList.appendChild(li);
+    });
+  }
+
+  function enregistrerAvantages(liste) {
+    var c = clientCourant;
+    c.avantagesRecus = liste;
+    afficherAvantages();
+    fFidelite.value = messageFidelite(Math.max(0, Math.round(Number(fBouteilles.value) || 0)));
+    render(); saveDraft();
+    dbApi.collection('clients').doc(c.code).update({ avantagesRecus: liste }).catch(function () {
+      registreInfo.textContent = 'L’avantage n’a pas pu être enregistré. Vérifie ta connexion, puis réessaie.';
+      registreInfo.hidden = false;
+    });
+  }
+
+  $('btnAddAvantage').addEventListener('click', function () {
+    if (!clientCourant || !dbApi) return;
+    var lib = fAvLibelle.value.trim().replace(/\s*—\s*$/, '');
+    if (!lib) { fAvLibelle.focus(); return; }
+    var liste = (clientCourant.avantagesRecus || []).slice();
+    liste.push({ date: fAvDate.value || todayISO(), libelle: lib });
+    fAvLibelle.value = '';
+    enregistrerAvantages(liste);
+  });
+
+  fClient.addEventListener('input', function () { appliquerClientDepuisNom(true); });
+  fClient.addEventListener('change', function () { appliquerClientDepuisNom(true); render(); saveDraft(); });
+  fBouteilles.addEventListener('input', function () { bouteillesAuto = false; afficherInfoRegistre(); });
+
 
   function safeFileName(ext) {
     var prefix = lastType === 'facture' ? 'Facture-' : (lastType === 'carte' ? 'Carte-Fidelite-' : 'Recu-');

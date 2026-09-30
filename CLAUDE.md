@@ -44,6 +44,36 @@ Quand Djibret demande une facture ou un reçu, on peut soit le renvoyer vers
 l'outil, soit générer le document directement — les règles ci-dessous
 s'appliquent dans les deux cas.
 
+**Registre clients — liste déroulante sur le nom (depuis le 30.09.2026)** :
+collection `clients` de l'outil (un document par client, identifiant = code
+client) + `meta/import` (date d'arrêté du dernier fichier importé). Choisir un
+client dans la liste remplit son code, son **cumul** (chiffre du fichier +
+bouteilles des documents générés dans l'outil après la date d'arrêté + document
+en cours, détail affiché sous le nom) et le message fidélité : palier, avantages
+du palier, **avantages déjà reçus**. Une ancienne orthographe tapée à la main
+(« Mme Josianne ADJI ») est remplacée par le nom enregistré. Les avantages reçus
+viennent de deux champs : `avantagesRecus` (saisis par Djibret dans l'outil,
+**jamais écrasés par un import**) et `cadeauxFichier` (recalculés à chaque import :
+lignes de VENTES à 0 F, ou listées dans `cadeaux` du référentiel). Le nom du
+registre = le nom à taper dans le fichier Excel : c'est l'harmonisation demandée.
+
+**Mise à jour hebdomadaire** — Djibret envoie `GESTION_COMMERCIALE` une fois par
+semaine (rappel automatique chaque lundi 8 h). Procédure :
+1. `python3 scripts/import_gestion.py <fichier.xlsx> <scratchpad>/import` ;
+   lire `rapport.md` produit.
+2. **Nouveaux clients** du rapport : vérifier qu'aucun n'est une variante d'un
+   client existant. En cas de doute, demander à Djibret — jamais de fusion sans
+   confirmation ; une fusion confirmée s'ajoute dans `fusions` de
+   `scripts/referentiel_clients.json` puis on relance le script.
+3. Lister la collection `clients` (ArtifactData `list`) : **`update`** pour les
+   codes déjà présents (préserve `avantagesRecus`), **`set`** pour les nouveaux,
+   par lots de 50 avec `file_path` ; puis `set` de `meta/import` avec `meta.json`.
+4. Donner à Djibret les **lignes à renommer** du rapport (orthographes qui
+   s'écartent du nom enregistré) pour qu'il corrige son fichier.
+5. Commiter `scripts/codes_clients.json` : les codes sont repris dans les numéros
+   de documents, **ne jamais en modifier un**. Retirer de `cadeaux` une ligne
+   que Djibret a passée à 0 F dans le fichier.
+
 **Fonctions ajoutées, partagées entre ses appareils (capacité `db` de l'outil) :**
 - **Numérotation automatique** : à côté du champ Numéro, le bouton **#** propose
   le prochain numéro pour ce client + ce type de document + cette année, à

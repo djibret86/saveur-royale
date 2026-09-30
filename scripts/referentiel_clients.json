@@ -1,0 +1,59 @@
+{
+  "_lisez_moi": "Référentiel des noms clients, maintenu à la main. 'fusions' : libellé du fichier (majuscules, sans accents) -> nom unique retenu, uniquement pour les fusions confirmées par Djibret (voir CLAUDE.md). 'codes_imposes' : codes déjà utilisés dans des numéros de documents, à ne jamais changer. 'cadeaux' : lignes de VENTES 2026 qui sont des cadeaux mais pas encore passées à 0 F dans le fichier — exclues du cumul et listées comme avantage reçu.",
+
+  "fusions": {
+    "COLONEL VEI": "Col Vei Sylvain",
+    "VEI SYLVAIN": "Col Vei Sylvain",
+    "COL VEI SYLVAIN": "Col Vei Sylvain",
+    "MME ADREILLE BONI KONG": "Mireille Boni",
+    "MIREILLE BONI": "Mireille Boni",
+    "BONIKING": "Mireille Boni",
+    "CLM NANGA": "Col M Nanga",
+    "COL M NANGA": "Col M Nanga",
+    "MME ADJI": "Josiane ADJI",
+    "MME JOSIANNE ADJI": "Josiane ADJI",
+    "JOSIANNE ADJI": "Josiane ADJI",
+    "JOSIANE ADJI": "Josiane ADJI",
+    "YVAN": "M. Yvan",
+    "MR YVAN": "M. Yvan",
+    "M. YVAN": "M. Yvan",
+    "M YVAN": "M. Yvan",
+    "AMBULANT/YVAN": "M. Yvan",
+    "MOBOU": "Mme Mobou",
+    "MME MOBOU": "Mme Mobou",
+    "CHRISTELLE SANGARE": "Christelle Sangare",
+    "DIABY": "Diby",
+    "DIBY": "Diby",
+    "AMISSA": "Mme Amissa",
+    "MME AMISSA": "Mme Amissa",
+    "AMBULANT AMISSA BOUAKE": "Mme Amissa",
+    "CDT WASSE": "Wasse Tago",
+    "WASSE TAGO": "Wasse Tago",
+    "RESI": "Resi Martel",
+    "RESI MARTEL": "Resi Martel",
+    "AMBULANT MOBIO LAURENCE": "Laurence",
+    "LAURENCE": "Laurence",
+    "AMBULANT WILFRIED": "Wilfried",
+    "WILFRIED": "Wilfried",
+    "KIZERBO": "Emmanuel Kizerbo",
+    "EMMANUEL KIZERBO": "Emmanuel Kizerbo",
+    "COL ABOUGNAN CADEAU": "Col Abougnan",
+    "COL ABOUGNAN": "Col Abougnan",
+    "VANGAH FRANCINE BONOUA": "Mme Vangah",
+    "MME VANGAH": "Mme Vangah",
+    "MME MAIE": "Mme Maie Meli",
+    "MME MAIE MELI": "Mme Maie Meli"
+  },
+
+  "codes_imposes": {
+    "Col Vei Sylvain": "VEI",
+    "FIFI": "FIF",
+    "Josiane ADJI": "ADJI",
+    "Mireille Boni": "BONI",
+    "DONGO": "DONG"
+  },
+
+  "cadeaux": [
+    { "client": "Josiane ADJI", "date": "2026-09-10", "libelle": "Bouteille offerte — Corossol" }
+  ]
+}
