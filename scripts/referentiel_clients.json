@@ -1,6 +1,5 @@
 {
   "_lisez_moi": "Référentiel des noms clients, maintenu à la main. 'fusions' : libellé du fichier (majuscules, sans accents) -> nom unique retenu, uniquement pour les fusions confirmées par Djibret (voir CLAUDE.md). 'codes_imposes' : codes déjà utilisés dans des numéros de documents, à ne jamais changer. 'cadeaux' : lignes de VENTES 2026 qui sont des cadeaux mais pas encore passées à 0 F dans le fichier — exclues du cumul et listées comme avantage reçu.",
-
   "fusions": {
     "COLONEL VEI": "Col Vei Sylvain",
     "VEI SYLVAIN": "Col Vei Sylvain",
@@ -42,18 +41,22 @@
     "VANGAH FRANCINE BONOUA": "Mme Vangah",
     "MME VANGAH": "Mme Vangah",
     "MME MAIE": "Mme Maie Meli",
-    "MME MAIE MELI": "Mme Maie Meli"
+    "MME MAIE MELI": "Mme Maie Meli",
+    "DONGO": "Dongo Koffi",
+    "DONGO KOFFI": "Dongo Koffi"
   },
-
   "codes_imposes": {
     "Col Vei Sylvain": "VEI",
     "FIFI": "FIF",
     "Josiane ADJI": "ADJI",
     "Mireille Boni": "BONI",
-    "DONGO": "DONG"
+    "Dongo Koffi": "DONG"
   },
-
   "cadeaux": [
-    { "client": "Josiane ADJI", "date": "2026-09-10", "libelle": "Bouteille offerte — Corossol" }
+    {
+      "client": "Josiane ADJI",
+      "date": "2026-09-10",
+      "libelle": "Bouteille offerte — Corossol"
+    }
   ]
 }
