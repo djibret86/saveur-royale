@@ -333,6 +333,7 @@ personne (essayé, « Richarde Yao » avait absorbé « Pisam » et « Maman »)
   pas une autre personne) · VANGAH FRANCINE BONOUA = **Mme Vangah**
 - MME MAIE = **Mme Maie Meli**
 - DONGO = DONGO KOFFI → **Dongo Koffi** (code DONG, confirmé le 30.09.2026)
+- AMADOU PAPI = AMADOU BOKOUM → **Amadou Bokoum** (code AMAD, confirmé le 30.09.2026)
 
 **Libellés qui se ressemblent mais désignent des personnes différentes** —
 vérifié, ne pas fusionner : « Amie Mme Mobou » ≠ Mme Mobou (la fusionner ferait

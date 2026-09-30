@@ -43,14 +43,17 @@
     "MME MAIE": "Mme Maie Meli",
     "MME MAIE MELI": "Mme Maie Meli",
     "DONGO": "Dongo Koffi",
-    "DONGO KOFFI": "Dongo Koffi"
+    "DONGO KOFFI": "Dongo Koffi",
+    "AMADOU PAPI": "Amadou Bokoum",
+    "AMADOU BOKOUM": "Amadou Bokoum"
   },
   "codes_imposes": {
     "Col Vei Sylvain": "VEI",
     "FIFI": "FIF",
     "Josiane ADJI": "ADJI",
     "Mireille Boni": "BONI",
-    "Dongo Koffi": "DONG"
+    "Dongo Koffi": "DONG",
+    "Amadou Bokoum": "AMAD"
   },
   "cadeaux": [
     {
