@@ -72,13 +72,13 @@ semaine (rappel automatique chaque lundi 8 h). Procédure :
    s'écartent du nom enregistré) pour qu'il corrige son fichier.
 5. Commiter `scripts/codes_clients.json` : les codes sont repris dans les numéros
    de documents, **ne jamais en modifier un**. Retirer de `cadeaux` une ligne
+   que Djibret a passée à 0 F dans le fichier.
 6. **Noms sans titre** (décision de Djibret, 07.10.2026) : son fichier écrit les
    clients sans « Mme », « Col », « Dr »… (« ANOH », pas « MME ANOH »). Le
    registre suit : quand un titre disparaît, on renomme la clé dans
    `codes_clients.json` **en gardant le code**, et on ajoute l'ancien libellé
    dans `fusions`. Les colonnes de VENTES 2026 sont lues **par leur titre**
    (ligne 3) : une nouvelle saveur s'ajoute dans `SAVEURS_2026` du script.
-   que Djibret a passée à 0 F dans le fichier.
 
 **Fonctions ajoutées, partagées entre ses appareils (capacité `db` de l'outil) :**
 - **Numérotation automatique** : à côté du champ Numéro, le bouton **#** propose
