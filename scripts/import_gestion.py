@@ -26,9 +26,13 @@ CODES_PATH = os.path.join(ICI, "codes_clients.json")
 # Même logique que suggestClientCode() dans l'outil.
 TITRES = {"col", "colonel", "mme", "madame", "mr", "monsieur", "m", "dr", "docteur",
           "pr", "professeur", "mlle", "mademoiselle", "cdt", "commandant"}
-SAVEURS_2026 = {3: "Passion", 4: "Chocolat", 5: "Citron", 6: "Ananas", 7: "Bissap",
-                8: "Crème de Bissap", 9: "Corossol", 10: "Mandarine", 11: "Mangoustan",
-                12: "Crème de Cocota"}
+# Libellé d'en-tête (ligne 3 de VENTES 2026, majuscules sans accents) -> nom de la saveur.
+# Les colonnes sont retrouvées par leur titre : une saveur ajoutée (Liqueur de Cocota,
+# oct. 2026) décalait tout et faisait lire le total de bouteilles au mauvais endroit.
+SAVEURS_2026 = {"PASSION": "Passion", "CHOCOLAT": "Chocolat", "CITRON": "Citron",
+                "ANANAS": "Ananas", "BISSAP": "Bissap", "CREME BISSAP": "Crème de Bissap",
+                "COROSSOL": "Corossol", "MANDARINE": "Mandarine", "MANGOUSTAN": "Mangoustan",
+                "LIQUEUR DE COCOTA": "Liqueur de Cocota", "CREME DE COCOTA": "Crème de Cocota"}
 
 
 def sans_accents(s):
@@ -102,6 +106,13 @@ def main(xlsx, sortie):
     cadeaux_manuels = {(cle(c["client"]), c["date"]): c["libelle"] for c in REF["cadeaux"]}
 
     ws = wb["VENTES 2026"]
+    entetes = {cle(ws.cell(3, c).value).split("(")[0].strip(): c
+               for c in range(1, ws.max_column + 1) if ws.cell(3, c).value}
+    manquants = [e for e in ("TOTAL BOUTEILLES", "MONTANT NET") if e not in entetes]
+    if manquants:
+        sys.exit(f"VENTES 2026 : colonne(s) introuvable(s) en ligne 3 : {manquants}")
+    col_total, col_net = entetes["TOTAL BOUTEILLES"], entetes["MONTANT NET"]
+    col_saveurs = {entetes[e]: nom for e, nom in SAVEURS_2026.items() if e in entetes}
     arrete = None
     for r in range(4, ws.max_row + 1):
         d, nom = ws.cell(r, 1).value, ws.cell(r, 2).value
@@ -112,12 +123,12 @@ def main(xlsx, sortie):
         if g is None:
             continue
         noter(g, nom, d, "VENTES 2026", r)
-        qte = ws.cell(r, 13).value or 0
-        net = ws.cell(r, 18).value
+        qte = ws.cell(r, col_total).value or 0
+        net = ws.cell(r, col_net).value
         kc = cle(g["impose"] or nom)
         manuel = cadeaux_manuels.get((kc, iso(d)))
         if manuel or net == 0:
-            produits = [SAVEURS_2026[c] for c in SAVEURS_2026 if ws.cell(r, c).value]
+            produits = [nom for c, nom in col_saveurs.items() if ws.cell(r, c).value]
             g["cadeaux"].append({"date": iso(d),
                                  "libelle": manuel or ("Bouteille offerte — " + ", ".join(produits))})
             continue
@@ -150,6 +161,9 @@ def main(xlsx, sortie):
     for nom, code in REF["codes_imposes"].items():
         codes.setdefault(nom, code)
     pris = set(codes.values())
+    # Les noms du registre gardent leur casse d'origine (« Blake ») : on les retrouve
+    # aussi par leur clé, sinon « BLAKE » recevrait un second code.
+    codes_par_cle = {cle(n): c for n, c in codes.items()}
 
     os.makedirs(os.path.join(sortie, "clients"), exist_ok=True)
     rapport_renommer, nouveaux, docs = [], [], []
@@ -158,7 +172,7 @@ def main(xlsx, sortie):
             nom = g["impose"]
         else:
             nom = max(g["orth"].items(), key=lambda x: (x[1], x[0]))[0]
-        code = codes.get(nom) or codes.get(cle(nom))
+        code = codes.get(nom) or codes_par_cle.get(cle(nom))
         if not code:
             code = proposer_code(nom, pris)
             codes[nom] = code
