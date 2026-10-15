@@ -340,6 +340,9 @@ personne (essayé, « Richarde Yao » avait absorbé « Pisam » et « Maman »)
 - MME MAIE = **Mme Maie Meli**
 - DONGO = DONGO KOFFI → **Dongo Koffi** (code DONG, confirmé le 30.09.2026)
 - AMADOU PAPI = AMADOU BOKOUM → **Amadou Bokoum** (code AMAD, confirmé le 30.09.2026)
+- COL ABOUGNAN (= COL ABOUGNAN CADEAU) = MATHIAS ABOUGNAN → **Mathias ABOUGNAN** (code ABOU conservé, confirmé le 15.10.2026)
+- AMBULANT LILIANE = DOUDOU LILIANE → **Doudou Liliane** (code DOUD, confirmé le 15.10.2026)
+- Confirmé **distinct** le 15.10.2026 : Lady First Angré ≠ Lady First Anono. Laissés séparés (« pour le reste c'est bon », 15.10.2026) : Ambroise Kouassi / Ambroise · Kouakou Laureades / Kouakou · Liliane Zebede / Doudou Liliane
 
 **Libellés qui se ressemblent mais désignent des personnes différentes** —
 vérifié, ne pas fusionner : « Amie Mme Mobou » ≠ Mme Mobou (la fusionner ferait
