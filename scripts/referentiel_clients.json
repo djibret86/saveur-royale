@@ -36,8 +36,8 @@
     "WILFRIED": "Wilfried",
     "KIZERBO": "Emmanuel Kizerbo",
     "EMMANUEL KIZERBO": "Emmanuel Kizerbo",
-    "COL ABOUGNAN CADEAU": "Col Abougnan",
-    "COL ABOUGNAN": "Col Abougnan",
+    "COL ABOUGNAN CADEAU": "Mathias ABOUGNAN",
+    "COL ABOUGNAN": "Mathias ABOUGNAN",
     "VANGAH FRANCINE BONOUA": "Mme Vangah",
     "MME VANGAH": "Mme Vangah",
     "MME MAIE": "Mme Maie Meli",
@@ -98,7 +98,10 @@
     "MME ZOKO": "ZOKO",
     "ZOKO": "ZOKO",
     "MME KONE": "KONE",
-    "COL CISSE": "CISSE"
+    "COL CISSE": "CISSE",
+    "MATHIAS ABOUGNAN": "Mathias ABOUGNAN",
+    "AMBULANT LILIANE": "Doudou Liliane",
+    "DOUDOU LILIANE": "Doudou Liliane"
   },
   "codes_imposes": {
     "FIFI": "FIF",
