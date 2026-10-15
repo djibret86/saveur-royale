@@ -60,7 +60,14 @@ registre = le nom à taper dans le fichier Excel : c'est l'harmonisation demand�
 **Mise à jour hebdomadaire** — Djibret envoie `GESTION_COMMERCIALE` une fois par
 semaine (rappel automatique chaque lundi 8 h). Procédure :
 1. `python3 scripts/import_gestion.py <fichier.xlsx> <scratchpad>/import` ;
-   lire `rapport.md` produit.
+   lire `rapport.md` produit. **Depuis le 15.10.2026**, Djibret peut aussi envoyer
+   l'export CSV de l'app (bouton Ventes → Exporter les ventes) : on l'ajoute avec
+   `--ventes-csv <export.csv>` ; les ventes 2026 viennent alors du CSV, et le
+   classeur ne sert plus que pour VENTES 2025 et HISTORIQUE 10 ANS (une copie
+   récente du Google Sheet suffit, ces feuilles ne bougent pas). Testé sur l'export
+   du 15.10 : mêmes bouteilles, achats et dates que le classeur, seule la casse des
+   noms diffère. Le classeur Google Sheet n'est qu'une photo : il ne se met pas à
+   jour tout seul depuis l'app (pas de routine quotidienne, décision du 15.10).
 2. **Nouveaux clients** du rapport : vérifier qu'aucun n'est une variante d'un
    client existant. En cas de doute, demander à Djibret — jamais de fusion sans
    confirmation ; une fusion confirmée s'ajoute dans `fusions` de

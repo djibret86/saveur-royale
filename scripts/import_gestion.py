@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Construit le registre clients de l'outil à partir du fichier GESTION_COMMERCIALE.
 
-Usage : python3 scripts/import_gestion.py <fichier.xlsx> <dossier_sortie>
+Usage : python3 scripts/import_gestion.py <fichier.xlsx> <dossier_sortie> [--ventes-csv <export.csv>]
+
+Avec --ventes-csv (export « Exporter les ventes » de l'app), les ventes 2026 sont lues
+dans le CSV au lieu de la feuille VENTES 2026 ; le classeur reste nécessaire pour
+VENTES 2025 et HISTORIQUE 10 ANS (ancienneté).
 
 Produit dans <dossier_sortie> :
   clients/<CODE>.json  un document par client identifié (collection "clients")
@@ -9,6 +13,7 @@ Produit dans <dossier_sortie> :
   rapport.md           lignes du fichier à renommer, nouveaux clients, cadeaux
 Et met à jour scripts/codes_clients.json (codes stables d'une semaine à l'autre).
 """
+import csv
 import datetime
 import json
 import os
@@ -33,6 +38,11 @@ SAVEURS_2026 = {"PASSION": "Passion", "CHOCOLAT": "Chocolat", "CITRON": "Citron"
                 "ANANAS": "Ananas", "BISSAP": "Bissap", "CREME BISSAP": "Crème de Bissap",
                 "COROSSOL": "Corossol", "MANDARINE": "Mandarine", "MANGOUSTAN": "Mangoustan",
                 "LIQUEUR DE COCOTA": "Liqueur de Cocota", "CREME DE COCOTA": "Crème de Cocota"}
+# Colonnes de saveurs de l'export CSV de l'app -> nom de la saveur.
+SAVEURS_CSV = {"PA": "Passion", "CHO": "Chocolat", "CI": "Citron", "AN": "Ananas",
+               "BI": "Bissap", "CRBI": "Crème de Bissap", "COR": "Corossol",
+               "MANDA": "Mandarine", "MANG": "Mangoustan", "COCOTL": "Liqueur de Cocota",
+               "COCOT": "Crème de Cocota"}
 
 
 def sans_accents(s):
@@ -77,7 +87,7 @@ def iso(d):
     return d.strftime("%Y-%m-%d") if isinstance(d, datetime.datetime) else None
 
 
-def main(xlsx, sortie):
+def main(xlsx, sortie, csv_ventes=None):
     warnings.filterwarnings("ignore")
     wb = openpyxl.load_workbook(xlsx, data_only=True)
     groupes = {}   # clé canonique -> infos
@@ -105,30 +115,47 @@ def main(xlsx, sortie):
 
     cadeaux_manuels = {(cle(c["client"]), c["date"]): c["libelle"] for c in REF["cadeaux"]}
 
-    ws = wb["VENTES 2026"]
-    entetes = {cle(ws.cell(3, c).value).split("(")[0].strip(): c
-               for c in range(1, ws.max_column + 1) if ws.cell(3, c).value}
-    manquants = [e for e in ("TOTAL BOUTEILLES", "MONTANT NET") if e not in entetes]
-    if manquants:
-        sys.exit(f"VENTES 2026 : colonne(s) introuvable(s) en ligne 3 : {manquants}")
-    col_total, col_net = entetes["TOTAL BOUTEILLES"], entetes["MONTANT NET"]
-    col_saveurs = {entetes[e]: nom for e, nom in SAVEURS_2026.items() if e in entetes}
+    def ventes_2026_xlsx():
+        ws = wb["VENTES 2026"]
+        entetes = {cle(ws.cell(3, c).value).split("(")[0].strip(): c
+                   for c in range(1, ws.max_column + 1) if ws.cell(3, c).value}
+        manquants = [e for e in ("TOTAL BOUTEILLES", "MONTANT NET") if e not in entetes]
+        if manquants:
+            sys.exit(f"VENTES 2026 : colonne(s) introuvable(s) en ligne 3 : {manquants}")
+        col_total, col_net = entetes["TOTAL BOUTEILLES"], entetes["MONTANT NET"]
+        col_saveurs = {entetes[e]: nom for e, nom in SAVEURS_2026.items() if e in entetes}
+        for r in range(4, ws.max_row + 1):
+            d, nom = ws.cell(r, 1).value, ws.cell(r, 2).value
+            if not isinstance(d, datetime.datetime) or not nom:
+                continue
+            yield (r, d, nom, ws.cell(r, col_total).value or 0, ws.cell(r, col_net).value,
+                   [n for c, n in col_saveurs.items() if ws.cell(r, c).value])
+
+    def ventes_2026_csv(chemin):
+        with open(chemin, encoding="utf-8-sig", newline="") as f:
+            lecteur = csv.DictReader(f)
+            manquants = [c for c in ("Date", "Client", "Net", *SAVEURS_CSV) if c not in lecteur.fieldnames]
+            if manquants:
+                sys.exit(f"CSV : colonne(s) introuvable(s) : {manquants}")
+            for i, row in enumerate(lecteur, start=2):
+                if not row["Date"] or not row["Client"].strip():
+                    continue
+                d = datetime.datetime.strptime(row["Date"], "%Y-%m-%d")
+                qtes = {n: int(float(row[c] or 0)) for c, n in SAVEURS_CSV.items()}
+                yield (i, d, row["Client"], sum(qtes.values()), float(row["Net"] or 0),
+                       [n for n, q in qtes.items() if q])
+
     arrete = None
-    for r in range(4, ws.max_row + 1):
-        d, nom = ws.cell(r, 1).value, ws.cell(r, 2).value
-        if not isinstance(d, datetime.datetime) or not nom:
-            continue
+    for r, d, nom, qte, net, produits in (ventes_2026_csv(csv_ventes) if csv_ventes
+                                          else ventes_2026_xlsx()):
         arrete = max(filter(None, [arrete, d]))
         g = groupe(nom)
         if g is None:
             continue
         noter(g, nom, d, "VENTES 2026", r)
-        qte = ws.cell(r, col_total).value or 0
-        net = ws.cell(r, col_net).value
         kc = cle(g["impose"] or nom)
         manuel = cadeaux_manuels.get((kc, iso(d)))
         if manuel or net == 0:
-            produits = [nom for c, nom in col_saveurs.items() if ws.cell(r, c).value]
             g["cadeaux"].append({"date": iso(d),
                                  "libelle": manuel or ("Bouteille offerte — " + ", ".join(produits))})
             continue
@@ -205,7 +232,8 @@ def main(xlsx, sortie):
     with open(os.path.join(sortie, "rapport.md"), "w", encoding="utf-8") as f:
         f.write(f"# Import {meta['fichier']} — arrêté au {meta['arreteAu']}\n\n")
         f.write(f"{len(docs)} clients identifiés, {len(nouveaux)} nouveaux codes.\n\n")
-        f.write("## Lignes à renommer dans VENTES 2026\n\n")
+        f.write("## Lignes à renommer dans " + ("le CSV des ventes (à corriger dans l'app)" if csv_ventes
+                                              else "VENTES 2026") + "\n\n")
         for feuille, ligne, brut, nom in rapport_renommer:
             f.write(f"- ligne {ligne} : « {brut} » → « {nom} »\n")
         f.write("\n## Cadeaux (exclus du cumul)\n\n")
@@ -217,4 +245,10 @@ def main(xlsx, sortie):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    args = sys.argv[1:]
+    csv_ventes = None
+    if "--ventes-csv" in args:
+        i = args.index("--ventes-csv")
+        csv_ventes = args[i + 1]
+        del args[i:i + 2]
+    main(args[0], args[1], csv_ventes)
